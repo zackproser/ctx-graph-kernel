@@ -93,7 +93,9 @@ export function extractObligations(prompt: string, knownRepositories: string[] =
   if (found.size > 0) {
     const candidates = [...new Set([...found.keys(), ...known])];
     for (const repository of known) {
-      for (const segment of uniqueSegments(repository, candidates)) {
+      // An owner name is never a repository segment: "the workos overlay" must
+      // not bind workos/workos-blog-bot-flue (production, 2026-09-03).
+      for (const segment of uniqueSegments(repository, candidates).filter((entry) => !knownOwners.has(entry.toLowerCase()))) {
         const index = prompt.search(wordPattern(segment));
         if (index >= 0) add(repository, index);
       }
