@@ -140,7 +140,7 @@ Extraction is deterministic and every finding carries the span of prompt text th
 
 ```sh
 npm ci
-npm test          # boundary + golden + corpus, 35 tests
+npm test          # boundary + golden + corpus, 66 tests
 npm run typecheck
 ```
 
