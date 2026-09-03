@@ -1,0 +1,24 @@
+{
+  "name": "battery_deadline_phrase",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "By Friday, ship a PR to zackproser/ctx that adds the compiler fallback rate to the /app health page.",
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Deadline Friday: zackproser/ctx needs the compiler fallback rate on the /app health page — deliver it as a PR."
+  ]
+}

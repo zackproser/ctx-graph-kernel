@@ -1,0 +1,26 @@
+{
+  "name": "battery_merge_gate_ci_green",
+  "has_github_resources": true,
+  "matched_pull_requests": 2,
+  "known_repositories": [],
+  "prompt": "Merge zackproser/ctx PRs #364 and #365 once CI is green.",
+  "expected": {
+    "template": "merge_gate",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [],
+    "check_kinds": [
+      "github_merge"
+    ],
+    "node_evaluators": {
+      "prs_in_scope": "ctx.input-membership",
+      "all_prs_merged": "ctx.github-merge-verifier"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Once CI passes, land zackproser/ctx#364 and zackproser/ctx#365."
+  ]
+}

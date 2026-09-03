@@ -1,0 +1,29 @@
+{
+  "name": "battery_research_plan_scheduler",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Research the current state of Cloudflare Durable Objects alarms, write a plan document, then implement the plan in the scheduler and deliver the result.",
+  "expected": {
+    "template": "research_plan_handoff",
+    "repositories": [],
+    "deliverable_keys": [
+      "plan_document",
+      "implementation"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "plan_document": "ctx.work-run-artifact",
+      "implementation": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "implementation",
+        "plan_document"
+      ]
+    ],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "First research Durable Object alarms and turn it into a plan document; after that, build the scheduler changes the plan calls for and deliver them."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "battery_owner_chores",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Renew the passport, book the dentist appointment, and email the accountant the Q3 receipts.",
+  "expected": {
+    "template": "owner_checklist",
+    "repositories": [],
+    "deliverable_keys": [],
+    "check_kinds": [
+      "owner_attestation",
+      "owner_attestation",
+      "owner_attestation"
+    ],
+    "node_evaluators": {
+      "step_1": "ctx.manual-attestation",
+      "step_2": "ctx.manual-attestation",
+      "step_3": "ctx.manual-attestation"
+    },
+    "edges": [
+      [
+        "step_2",
+        "step_1"
+      ],
+      [
+        "step_3",
+        "step_2"
+      ]
+    ],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Email the Q3 receipts to the accountant, renew my passport, and schedule the dentist."
+  ]
+}

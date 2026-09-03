@@ -1,0 +1,24 @@
+{
+  "name": "battery_do_not_merge_or_deploy",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Open a PR in zackproser/ctx that stores lowering options on the drafts ledger row. Do not merge and do not deploy; I will review it myself.",
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Prepare a zackproser/ctx pull request that records lowering options on the drafts ledger. Don't merge, don't deploy — I'll review it."
+  ]
+}

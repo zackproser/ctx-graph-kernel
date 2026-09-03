@@ -7,11 +7,16 @@
     "template": "owner_checklist",
     "repositories": [],
     "deliverable_keys": [],
-    "check_kinds": [],
+    "check_kinds": [
+      "owner_attestation"
+    ],
     "node_evaluators": {
       "step_1": "ctx.manual-attestation"
     },
     "edges": [],
-    "launch_ready": false
-  }
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Somehow make the thing better and tell us."
+  ]
 }

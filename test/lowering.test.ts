@@ -82,11 +82,36 @@ describe('invariant 3: metamorphic stability', () => {
 });
 
 describe('invariant 1 and 2: repositories never lower to attestations; coverage fails closed', () => {
-  it('never emits manual_confirmation when a repository is bound', () => {
+  it('never emits manual_confirmation on a repository-bound lane', () => {
     for (const fixture of corpus.filter((f) => f.expected.repositories.length > 0)) {
       const { graph } = lower(fixture);
-      expect(graph.nodes.some((n) => n.predicate.op === 'manual_confirmation')).toBe(false);
+      const bound = graph.nodes.filter((n) => /^Repository:/m.test(n.description));
+      expect(bound.length).toBeGreaterThan(0);
+      expect(bound.some((n) => n.predicate.op === 'manual_confirmation')).toBe(false);
     }
+  });
+  it('lowers an owner-attested document beside a PR lane to a manual attestation on the document itself', () => {
+    const fixture = corpus.find((f) => f.name === 'battery_pr_plus_attested_runbook')!;
+    const { ir, graph } = lower(fixture);
+    expect(ir.checks).toEqual([expect.objectContaining({ kind: 'owner_attestation', target: 'runbook_document' })]);
+    const runbook = graph.nodes.find((n) => n.key === 'runbook_document')!;
+    expect(runbook).toMatchObject({ evaluator: 'ctx.manual-attestation', predicate: { op: 'manual_confirmation' }, cardinality: { mode: 'exact', target: 1 } });
+    expect(runbook.description.startsWith('Repository:')).toBe(false);
+    const lane = graph.nodes.find((n) => n.key === 'lane_pi_harness')!;
+    expect(lane).toMatchObject({ evaluator: 'ctx.work-run-artifact' });
+    // The PR lane's provenance stops where the runbook ask begins.
+    const laneEnd = Math.max(...graph.provenance.lane_pi_harness!.spans.map((s) => s.end));
+    const runbookStart = Math.min(...graph.provenance.runbook_document!.spans.map((s) => s.start));
+    expect(laneEnd).toBeLessThanOrEqual(runbookStart);
+    expect(ir.checks.some((c) => c.kind === 'deployment_release')).toBe(false);
+  });
+  it('lowers non-software chores to owner steps without questions, and negations to nothing', () => {
+    const { ir, graph } = lower(corpus.find((f) => f.name === 'battery_owner_chores')!);
+    expect(ir.questions).toEqual([]);
+    expect(graph.nodes.map((n) => n.evaluator)).toEqual(['ctx.manual-attestation', 'ctx.manual-attestation', 'ctx.manual-attestation']);
+    const report = extractObligationIR('Write a report-only Markdown summary and store it in CTX. No code changes.');
+    expect(report.deliverables.map((d) => d.kind)).toEqual(['document']);
+    expect(report.checks).toEqual([]);
   });
   it('flags an uncovered repository, an uncovered join, and unresolved questions', () => {
     const ir = extractObligationIR(corpus.find((f) => f.name === 'two_repo_join')!.prompt);

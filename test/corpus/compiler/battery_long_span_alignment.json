@@ -1,0 +1,27 @@
+{
+  "name": "battery_long_span_alignment",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "The Today desk preview shows misaligned highlights when the model draft wins. Investigate why model spans disagree with deterministic spans in zackproser/ctx. Fix the span offsets so highlighting is byte-accurate against the normalized prompt. Add a regression test in the shadow harness. Deliver a reviewed pull request against main and do not merge it yourself. The task is complete once the merged CTX release passes independent deployment and authenticated desktop and phone browser verification.",
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [
+      "deployment_release",
+      "browser_smoke"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.declarative"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Highlights in the Today desk preview are misaligned whenever the model draft is used. In zackproser/ctx, work out why the model's spans differ from the deterministic ones, correct the offsets so they are byte-accurate against the normalized prompt, and pin it with a shadow-harness regression test. Open a reviewed PR against main without merging it yourself; completion requires the merged CTX release to pass independent deployment and authenticated desktop and phone browser verification."
+  ]
+}

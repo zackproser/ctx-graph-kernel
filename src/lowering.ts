@@ -67,6 +67,12 @@ function receiptPredicate(verifierId: string) {
 
 const ARTIFACT_PREDICATE = { op: 'observation_count', observation_kind: 'artifact', min_count: 1 };
 
+// The first sentence that says something ("Two deliverables." is a preamble).
+function laneTitle(summary: string) {
+  const parts = summary.split(/(?<=[.;!?])\s+/).filter(Boolean);
+  return parts.find((part) => part.split(/\s+/).length >= 4) ?? parts[0] ?? '';
+}
+
 function laneNode(
   deliverable: ObligationIR['deliverables'][number], receipts: string[],
 ): GraphShapeNode {
@@ -76,7 +82,7 @@ function laneNode(
     : '';
   return {
     key: deliverable.key,
-    title: bounded(deliverable.summary.split(/(?<=[.;!?])\s+/)[0] ?? deliverable.key, TITLE_MAX),
+    title: bounded(laneTitle(deliverable.summary) || deliverable.key, TITLE_MAX),
     description: bounded(`${deliverable.repository ? `Repository: ${deliverable.repository}\n` : ''}${body}${receiptDetail}`, DESCRIPTION_MAX),
     kind: 'artifact_requirement', policy: 'required',
     cardinality: { mode: 'at_least', target: 1 },
@@ -191,6 +197,21 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
     const lanes = ir.deliverables.filter((entry) => LANE_KINDS.has(entry.kind) || entry.kind === 'document' || entry.kind === 'message');
     const gate = receiptGate(ir, lanes.filter((entry) => !ir.ordering.some((rule) => rule.before === entry.key && rule.after.length >= 2)));
     for (const deliverable of lanes) {
+      // An owner-attested deliverable that lands in no repository ("the runbook
+      // … is attested by the owner") is confirmed by the owner, not by a run
+      // artifact. Repository-bound lanes never lower to attestations (invariant 1).
+      const attested = deliverable.repository === null
+        && ir.checks.find((check) => check.kind === 'owner_attestation' && check.target === deliverable.key);
+      if (attested) {
+        const lane = laneNode(deliverable, []);
+        nodes.push({
+          ...lane, description: bounded(`${deliverable.summary}\nYou confirm this deliverable while signed in.`, DESCRIPTION_MAX),
+          cardinality: { mode: 'exact', target: 1 },
+          predicate: { op: 'manual_confirmation' }, evaluator: 'ctx.manual-attestation',
+        });
+        attach(deliverable.key, [deliverable.key, 'owner_attestation'], [...deliverable.provenance, ...attested.provenance]);
+        continue;
+      }
       nodes.push(laneNode(deliverable, deliverable.key === gate.key ? gate.receipts : []));
       attach(deliverable.key, [deliverable.key, ...(deliverable.key === gate.key ? gate.receipts : [])], deliverable.provenance);
     }
@@ -209,8 +230,8 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
         for (const key of laneKeys) edges.push({ from: 'all_lanes_accepted', to: key, kind: 'depends_on' });
       }
     }
-    // Owner attestations that survived in a software prompt are not lowered
-    // (invariant 1): they are reported as coverage questions instead.
+    // Any other owner attestation in a software prompt (a reviewed PR, a
+    // "users decide" aside) is not lowered: repository lanes stay artifact-verified.
   }
 
   return { template, nodes, edges, provenance, coverage: coverageDiagnostics(ir, nodes, edges, opts) };

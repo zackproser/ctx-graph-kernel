@@ -1,0 +1,38 @@
+{
+  "name": "battery_two_repo_json_flag",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Add a --json flag to zackproser/ctx-cli and the matching endpoint in zackproser/ctx. The two lanes can run independently, but only report the end-to-end proof after both PRs exist.",
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [
+      "zackproser/ctx-cli",
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx_cli",
+      "lane_ctx",
+      "joined_proof"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx_cli": "ctx.work-run-artifact",
+      "lane_ctx": "ctx.work-run-artifact",
+      "joined_proof": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "joined_proof",
+        "lane_ctx_cli"
+      ],
+      [
+        "joined_proof",
+        "lane_ctx"
+      ]
+    ],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Two lanes: zackproser/ctx gets the endpoint and ctx-cli gets a --json flag. Work them in parallel and join both into one end-to-end proof once both deliveries exist."
+  ]
+}

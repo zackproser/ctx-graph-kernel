@@ -1,0 +1,24 @@
+{
+  "name": "battery_single_repo_ctx_cli_subcommand",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Add a `ctx drafts list` subcommand to zackproser/ctx-cli that prints the last ten compiler drafts with template and launch readiness. Ship it as a pull request with tests.",
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx_cli"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx_cli": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "zackproser/ctx-cli needs a new subcommand, `ctx drafts list`, showing the ten most recent compiler drafts (template + launch_ready). Deliver a tested PR."
+  ]
+}

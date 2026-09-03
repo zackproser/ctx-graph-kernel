@@ -1,0 +1,28 @@
+{
+  "name": "battery_pr_plus_attested_runbook",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "In zackproser/pi-harness (main at 47f6843), add a scheduled GitHub Actions workflow (weekly, plus manual dispatch) that re-runs `npm run verify` so the pinned package integrities in config/packages.lock.json are re-checked against the npm registry over time, and opens or updates a single GitHub issue when the check fails. Deliver it as a reviewed pull request; do not merge. Separately, write an operator runbook (docs/integrity-runbook.md content) describing exactly what to do when the weekly check fails: how to read the failing integrity diff, how to confirm whether the registry tarball actually changed, how to re-pin safely, and when to escalate. The runbook is produced by a second agent working from a portable CTX brief and is attested by the owner.",
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/pi-harness"
+    ],
+    "deliverable_keys": [
+      "lane_pi_harness",
+      "runbook_document"
+    ],
+    "check_kinds": [
+      "owner_attestation"
+    ],
+    "node_evaluators": {
+      "lane_pi_harness": "ctx.work-run-artifact",
+      "runbook_document": "ctx.manual-attestation"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Two deliverables. First, a reviewed pull request (do not merge) in zackproser/pi-harness adding a weekly GitHub Actions workflow with manual dispatch that re-runs `npm run verify` against config/packages.lock.json and opens or updates one GitHub issue on failure. Second, an operator runbook for docs/integrity-runbook.md explaining what to do when that weekly check fails; the runbook is written by a second agent from a portable CTX brief and the owner attests it."
+  ]
+}

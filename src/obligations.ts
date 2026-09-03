@@ -19,6 +19,14 @@ const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\
 
 const wordPattern = (word: string) => new RegExp(`(?<![\\w-])${escapeRegExp(word)}(?![\\w-])`, 'i');
 
+// "config/packages.lock.json", "docs/runbook.md", "src/lib" are paths, not
+// repositories, however owner/name-shaped they look (production 2026-09-03).
+const PATH_OWNERS = new Set(['src', 'lib', 'app', 'apps', 'docs', 'doc', 'config', 'configs', 'test', 'tests', 'spec', 'scripts', 'bin', 'dist', 'build', 'public', 'static', 'assets', 'packages', 'node_modules', 'ui', 'api', 'internal', 'cmd', 'pkg', 'etc', 'var', 'tmp', 'usr', 'home']);
+const FILE_EXTENSION = /\.(?:json|md|mdx|txt|ya?ml|toml|lock|ts|tsx|js|jsx|mjs|cjs|py|go|rs|rb|sh|css|scss|html|sql|env|csv|xml|ini|cfg)$/i;
+export function looksLikePath(owner: string, name: string) {
+  return PATH_OWNERS.has(owner.toLowerCase()) || FILE_EXTENSION.test(name);
+}
+
 export function repositoryName(repository: string) {
   return repository.slice(repository.indexOf('/') + 1);
 }
@@ -58,7 +66,7 @@ export function extractObligations(prompt: string, knownRepositories: string[] =
   for (const match of prompt.matchAll(new RegExp(`(?<![\\w./-])(${REPO_OWNER})/(${REPO_NAME})(?=#\\d+|[\\s.,;:)]|$)`, 'g'))) {
     const owner = match[1]!.toLowerCase();
     const name = match[2]!;
-    if (!/[a-z]/i.test(name) || /^\d+$/.test(owner)) continue;
+    if (!/[a-z]/i.test(name) || /^\d+$/.test(owner) || looksLikePath(owner, name)) continue;
     // ponytail: with no retained repositories to anchor owners, only a
     // handle-shaped token counts ("and/or", "src/lib" are not repositories).
     if (knownOwners.size > 0 ? !knownOwners.has(owner) : owner.length < 4 || name.length < 3) continue;
@@ -173,7 +181,8 @@ export interface SentenceSpan extends Span { index: number }
 
 export function sentenceSpans(normalized: string): SentenceSpan[] {
   const out: SentenceSpan[] = [];
-  const pattern = /[^.;!?\n]+(?:[.;!?]+|$)/g;
+  // A terminator followed by a non-space is part of a token (config/packages.lock.json, e.g., v1.2).
+  const pattern = /(?:[^.;!?\n]|[.;!?](?=\S))+(?:[.;!?]+|$)/g;
   for (const match of normalized.matchAll(pattern)) {
     const raw = match[0];
     const leading = raw.length - raw.trimStart().length;
@@ -209,6 +218,10 @@ export const AUTHORITY_ACTION = /\b(?:owners?|humans?|users?|decid(?:e|es|ed|ing
 export const EXTERNAL_CHANNEL = /\b(?:email|slack|notion|discord|teams|sms|text message)\b/i;
 const DELIVERABLE_WORD = /\b(?:deploy(?:ed|ment)?|publish(?:ed)?|repository|repo|artifact|document|deliverable|output|file|build|report|plan|brief|summary|markdown)\b/i;
 const RELEASE_WORD = /\b(?:deploy|deployed|deployment|production|release)\b/i;
+// "write an operator runbook", "produce a Markdown write-up", "docs/x.md content"
+const DOCUMENT_ASK = /\b(?:write|writes|written|produce|draft|author|create|prepare|compose)\b[^.;\n]{0,60}?\b(runbooks?|reports?|write-?ups?|documents?|documentation|briefs?|plans?|summar(?:y|ies)|guides?|playbooks?|postmortems?|memos?|notes)\b|\b(?:a|an|the|one)\s+(?:[\w-]+\s+){0,2}(runbook|report|write-?up|playbook|postmortem|memo|guide)\b\s*(?:\(|for\b|describing|explaining|covering|that\b|which\b|:|on\b)/i;
+// "attested by the owner", "you approve it", "owner signs off" — the attester is the signed-in owner by definition.
+const ATTESTED = /\battest(?:s|ed|ation)?\b|\b(?:approv(?:e|es|ed|al)|sign(?:s|ed)?[- ]?off|accept(?:s|ed|ance)?)\b[^.;\n]{0,40}\b(?:owner|you|me|human)\b|\b(?:owner|you|human)\b[^.;\n]{0,40}\b(?:approv|sign[- ]?off|accept)/i;
 const SOFTWARE_WORD = /\b(?:github\.com|repository|repo|code|implement|implementation|fix|build|cli|web\s*app|frontend|pull requests?|prs?|commit)\b/i;
 
 const keyFrom = (value: string) => {
@@ -291,13 +304,13 @@ export function extractObligationIR(prompt: string, knownRepositories: string[] 
 
   const mergeSentences = sentences.filter((sentence) => {
     const text = positiveIntentText(sentence.text);
-    return /\b(?:prs?|pull requests?)\b/i.test(text) && /\bmerge(?:d|s)?\b/i.test(text);
+    return /\b(?:prs?|pull requests?)\b|[\w.-]+\/[\w.-]+#\d+|\/pull\/\d+/i.test(text) && /\b(?:merge(?:d|s)?|land(?:ed|s)?)\b/i.test(text);
   });
-  const mergeGate = mergeSentences.length > 0 && /\b(?:#\d+|prs?\s+\d+|\/pull\/\d+)/i.test(normalized);
+  const mergeGate = mergeSentences.length > 0 && /#\d+|\bprs?\s+\d+|\/pull\/\d+/i.test(normalized);
   if (mergeGate) checks.push({ kind: 'github_merge', target: deployableTarget, provenance: mergeSentences.map(spanOf) });
 
   const dualHarness = /\bcodex\b/i.test(normalized) && /\bclaude\b/i.test(normalized) && flat.parallel_requested;
-  const software = repositoryIds.length > 0 || SOFTWARE_WORD.test(normalized);
+  const software = repositoryIds.length > 0 || SOFTWARE_WORD.test(positive);
 
   if (dualHarness && repositoryIds.length < 2) {
     for (const harness of ['codex', 'claude'] as const) {
@@ -309,9 +322,33 @@ export function extractObligationIR(prompt: string, knownRepositories: string[] 
       });
     }
   } else if (repositoryIds.length > 0 && !mergeGate) {
+    // A separately-asked document ("Separately, write an operator runbook …")
+    // that names no repository is its own lane, attested by the owner when the
+    // prompt says so; it never lands inside the pull-request lane.
+    const claimed = new Set<number>();
+    const documents: ObligationIR['deliverables'] = [];
+    const unbound = sentences.filter((sentence) => !repositoryIds.some((repository) => repositoryMentioned(sentence.text, repository, repositoryIds)));
+    for (const sentence of unbound) {
+      if (claimed.has(sentence.index)) continue;
+      // "write a summary in the PR description" / "update the README" is part of the PR lane.
+      if (/\b(?:PRs?|pull requests?|commits?|README|repo(?:sitory)?|branch|changelog)\b/i.test(sentence.text)) continue;
+      const ask = DOCUMENT_ASK.exec(positiveIntentText(sentence.text));
+      const noun = ask?.[1] ?? ask?.[2];
+      if (!noun) continue;
+      const stem = noun.toLowerCase().replace(/s$/, '');
+      const about = unbound.filter((entry) => entry.index === sentence.index
+        || (entry.index > sentence.index && !claimed.has(entry.index) && new RegExp(`\\b${escapeRegExp(stem)}s?\\b`, 'i').test(entry.text)));
+      about.forEach((entry) => claimed.add(entry.index));
+      const key = unique(`${keyFrom(stem)}_document`, used);
+      documents.push({
+        key, kind: 'document', repository: null,
+        summary: bounded(about.map((entry) => entry.text).join(' '), 300), provenance: about.map(spanOf),
+      });
+      if (about.some((entry) => ATTESTED.test(entry.text))) checks.push({ kind: 'owner_attestation', target: key, provenance: about.filter((entry) => ATTESTED.test(entry.text)).map(spanOf) });
+    }
     // The repository binding is the software signal: one delivery lane per repo.
     for (const repository of repositoryIds) {
-      const scoped = repositoryIds.length === 1 ? sentences : mentioning(repository);
+      const scoped = (repositoryIds.length === 1 ? sentences : mentioning(repository)).filter((sentence) => !claimed.has(sentence.index));
       const spans = scoped.length ? scoped : sentences.slice(0, 1);
       deliverables.push({
         key: unique(`lane_${keyFrom(repositoryName(repository))}`, used), kind: 'pull_request', repository,
@@ -319,16 +356,20 @@ export function extractObligationIR(prompt: string, knownRepositories: string[] 
         provenance: spans.map(spanOf),
       });
     }
+    deliverables.push(...documents);
   } else if (!mergeGate && !software) {
     // Non-software prose: classify each clause; unknown clauses become questions.
     let previous: string | null = null;
     for (const sentence of sentences) {
+      const [deliverablesBefore, checksBefore] = [deliverables.length, checks.length];
       for (const clauseText of clauseTexts(sentence.text)) {
         const at = normalized.indexOf(clauseText, sentence.start);
         const span: Span = at >= 0 ? { start: at, end: at + clauseText.length, text: clauseText } : spanOf(sentence);
         // "CTX alone decides completion" / "report-only" state the custody
         // contract; they are neither owner actions nor open questions.
         if (/\bctx\b[^.;\n]*\b(?:alone|decides?|owns?|evaluates?|completion|authority)\b/i.test(clauseText)) continue;
+        // "No code changes" states a constraint, not a step.
+        if (!positiveIntentText(clauseText).trim()) continue;
         if (AUTHORITY_ACTION.test(clauseText) || EXTERNAL_CHANNEL.test(clauseText)) {
           checks.push({ kind: 'owner_attestation', target: null, provenance: [span] });
         } else if (DELIVERABLE_WORD.test(clauseText)) {
@@ -340,8 +381,16 @@ export function extractObligationIR(prompt: string, knownRepositories: string[] 
           if (previous) ordering.push({ before: key, after: [previous] });
           previous = key;
         } else {
-          questions.push({ text: bounded(`Unclear how to verify: “${clauseText}”`, 600), provenance: [span] });
+          // A chore CTX cannot verify is still a TODO: the owner checks it off.
+          // Questions are reserved for ambiguity that changes the graph shape.
+          checks.push({ kind: 'owner_attestation', target: null, provenance: [span] });
         }
+      }
+      // One deliverable from a sentence owns the whole sentence: "(report only,
+      // no code)" is a parenthetical, not a clause boundary.
+      if (deliverables.length === deliverablesBefore + 1 && checks.length === checksBefore) {
+        const only = deliverables[deliverables.length - 1]!;
+        only.summary = bounded(sentence.text, 300); only.provenance = [spanOf(sentence)];
       }
     }
   } else if (!mergeGate && software && repositoryIds.length === 0 && /\b(?:plan|research)\b/i.test(normalized)
@@ -398,45 +447,40 @@ function clauseTexts(sentence: string) {
 }
 
 /**
- * Deterministic facts are the floor: everything the extractor found stays;
- * the model may add deliverables/checks/ordering/questions and refine roles
- * and summaries. Unknown model repositories are dropped — a model never
- * introduces a repository the operator did not name.
+ * Merge policy (production 2026-09-03): the deterministic floor owns the graph
+ * structure — repositories, deliverables, checks, ordering, flags, questions.
+ * The model refines wording (a matched lane's summary) and repository roles.
+ * A model deliverable that matches no floor item is folded into the lane it
+ * overlaps (its spans become provenance) and never becomes a node: a single-PR
+ * ask must not split into PR + commit + "request review" lanes, "GitHub
+ * Actions workflow" must not add a deployment receipt, and "which cron day?"
+ * must not block launch.
  */
 export function mergeObligations(deterministic: ObligationIR, model: ObligationIR | null): ObligationIR {
   if (!model) return deterministic;
+  const receipts = deterministic.checks.some((check) => check.kind === 'deployment_release' || check.kind === 'browser_smoke');
   const repositories = deterministic.repositories.map((entry) => {
     const proposed = model.repositories.find((candidate) => candidate.id.toLowerCase() === entry.id.toLowerCase());
-    return proposed
-      ? { ...entry, role: entry.role === 'unknown' ? proposed.role : entry.role, provenance: [...entry.provenance, ...proposed.provenance] }
-      : entry;
+    if (!proposed) return entry;
+    // A role only matters when a receipt has to pick its lane; without one the
+    // model's "deployable" for a CI-only repository is noise.
+    const role = entry.role === 'unknown' && receipts ? proposed.role : entry.role;
+    return { ...entry, role, provenance: [...entry.provenance, ...proposed.provenance] };
   });
-  const known = new Set(repositories.map((entry) => entry.id.toLowerCase()));
-  const deliverables = [...deterministic.deliverables];
-  const keys = new Set(deliverables.map((entry) => entry.key));
+  const deliverables = deterministic.deliverables.map((entry) => ({ ...entry, provenance: [...entry.provenance] }));
+  const overlaps = (a: Span[], b: Span[]) => a.some((x) => b.some((y) => x.start < y.end && y.start < x.end && x.end > x.start && y.end > y.start));
   for (const proposed of model.deliverables) {
-    if (proposed.repository && !known.has(proposed.repository.toLowerCase())) continue;
-    const existing = deliverables.find((entry) => entry.key === proposed.key
-      || (entry.repository && entry.repository.toLowerCase() === proposed.repository?.toLowerCase() && entry.kind === proposed.kind));
-    if (existing) { existing.provenance = [...existing.provenance, ...proposed.provenance]; if (existing.summary.length < proposed.summary.length) existing.summary = proposed.summary; continue; }
-    if (keys.has(proposed.key)) continue;
-    keys.add(proposed.key); deliverables.push(proposed);
+    const repository = proposed.repository?.toLowerCase() ?? null;
+    const exact = deliverables.find((entry) => entry.key === proposed.key)
+      ?? deliverables.find((entry) => repository && entry.repository?.toLowerCase() === repository && entry.kind === proposed.kind);
+    const folded = exact
+      ?? deliverables.find((entry) => (!repository || entry.repository?.toLowerCase() === repository) && overlaps(entry.provenance, proposed.provenance))
+      ?? (repository ? deliverables.find((entry) => entry.repository?.toLowerCase() === repository) : undefined)
+      ?? (deliverables.length === 1 ? deliverables[0] : undefined);
+    if (!folded) continue;
+    folded.provenance.push(...proposed.provenance.filter((span) => span.end > span.start));
+    // The floor's summary is the raw sentences; the model's is a real summary.
+    if (exact && proposed.summary.trim().length >= 20) exact.summary = proposed.summary.trim();
   }
-  const checks = [...deterministic.checks];
-  for (const proposed of model.checks) {
-    if (proposed.target && !keys.has(proposed.target) && !known.has(proposed.target.toLowerCase())) continue;
-    if (!checks.some((entry) => entry.kind === proposed.kind && (entry.target ?? '') === (proposed.target ?? ''))) checks.push(proposed);
-  }
-  const ordering = [...deterministic.ordering];
-  for (const rule of model.ordering) {
-    if (!keys.has(rule.before) || !rule.after.every((key) => keys.has(key))) continue;
-    if (!ordering.some((entry) => entry.before === rule.before)) ordering.push(rule);
-  }
-  return {
-    ...deterministic, repositories, deliverables, checks, ordering,
-    join_requested: deterministic.join_requested || model.join_requested,
-    parallel_requested: deterministic.parallel_requested || model.parallel_requested,
-    questions: [...deterministic.questions, ...model.questions.filter((entry) => !deterministic.questions.some((known) => known.text === entry.text))],
-    source: 'merged',
-  };
+  return { ...deterministic, repositories, deliverables, source: 'merged' };
 }

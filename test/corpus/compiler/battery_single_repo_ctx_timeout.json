@@ -1,0 +1,24 @@
+{
+  "name": "battery_single_repo_ctx_timeout",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "In zackproser/ctx, add a request timeout to the Today desk auto-research start so a hung fetch shows a \"timed out, try again\" state. Deliver a reviewed pull request against main; do not merge it yourself.",
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Open a PR on zackproser/ctx that gives the Today desk's auto-research start a bounded timeout with a retry state. Reviewed PR against main, no self-merge."
+  ]
+}
