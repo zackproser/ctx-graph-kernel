@@ -1,0 +1,27 @@
+{
+  "name": "round2_23_very_short",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "fix the flaky schema test",
+  "paraphrases": [
+    "flaky schema test — fix it"
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [],
+    "deliverable_keys": [
+      "implementation"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "implementation": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

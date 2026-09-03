@@ -1,0 +1,31 @@
+{
+  "name": "round2_27_pr_external_document_in_one_repo",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "In zackproser/ctx, add the fallback_detail ledger column in a PR, and write a one-page design note for the team (not in the repo) explaining the ledger.",
+  "paraphrases": [
+    "zackproser/ctx PR adding the fallback_detail ledger column; separately, write a one-page design note explaining the ledger for the team — it does not go in the repo."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx",
+      "note_document"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact",
+      "note_document": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

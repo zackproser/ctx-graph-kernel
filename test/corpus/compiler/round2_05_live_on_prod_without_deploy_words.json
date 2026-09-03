@@ -1,0 +1,31 @@
+{
+  "name": "round2_05_live_on_prod_without_deploy_words",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Land the ledger-versioning change in zackproser/ctx and make sure it's live on prod before EOD.",
+  "paraphrases": [
+    "Get the ledger-versioning change in zackproser/ctx merged and out on production today."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [
+      "deployment_release"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.declarative"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

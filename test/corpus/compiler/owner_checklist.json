@@ -15,12 +15,7 @@
       "step_1": "ctx.manual-attestation",
       "step_2": "ctx.manual-attestation"
     },
-    "edges": [
-      [
-        "step_2",
-        "step_1"
-      ]
-    ],
+    "edges": [],
     "launch_ready": true
   }
 }

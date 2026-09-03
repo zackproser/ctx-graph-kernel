@@ -1,0 +1,29 @@
+{
+  "name": "round2_01_bullet_list_one_repo",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "In zackproser/ctx:\n- add a `--since` flag to list_accomplishments\n- cover it with a unit test\n- update the MCP tool description\nOpen one PR.",
+  "paraphrases": [
+    "One PR in zackproser/ctx that:\n1. adds a `--since` flag to list_accomplishments\n2. covers it with a unit test\n3. updates the MCP tool description"
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

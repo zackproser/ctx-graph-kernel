@@ -1,0 +1,29 @@
+{
+  "name": "round2_13_branch_name",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "On branch fix/compiler-round2 in zackproser/ctx, finish the span folding fix and push; open the PR against main.",
+  "paraphrases": [
+    "Finish the span folding fix on zackproser/ctx branch fix/compiler-round2, push it, and open a PR to main."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

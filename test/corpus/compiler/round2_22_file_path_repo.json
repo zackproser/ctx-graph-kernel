@@ -1,0 +1,29 @@
+{
+  "name": "round2_22_file_path_repo",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "In zackproser/ctx, tighten repairSpans in src/service/work-outcome-drafts.ts so it never returns an empty placeholder span; add a test in test/work-outcome-drafts.test.ts. PR.",
+  "paraphrases": [
+    "PR for zackproser/ctx: repairSpans (src/service/work-outcome-drafts.ts) must never return an empty placeholder span, with a test in test/work-outcome-drafts.test.ts."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

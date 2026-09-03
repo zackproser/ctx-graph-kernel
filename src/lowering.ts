@@ -3,6 +3,7 @@
 // given IR (deterministic keys, insertion order derived from the IR).
 // Contract: ctx.work-shape.v1.
 import type { ObligationIR, Span } from './obligation-ir.js';
+import { ORDER_WORDS } from './obligations.js';
 import type { CompletionGraphDiagnostic, GraphShapeEdge, GraphShapeNode } from './types.js';
 
 export const TEMPLATES = [
@@ -107,9 +108,12 @@ function receiptGate(ir: ObligationIR, lanes: ObligationIR['deliverables']): { k
 
 export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): LoweredGraph {
   let template = opts.template ?? selectTemplate(ir);
+  const notes: CompletionGraphDiagnostic[] = [];
   // A merge gate without retained pull requests has nothing to verify against;
-  // fall back to the shape the rest of the IR describes.
+  // fall back to the shape the rest of the IR describes and say so.
   if (template === 'merge_gate' && !opts.hasGithubResources) {
+    notes.push({ severity: 'warning', code: 'merge_gate_degraded', path: ['prompt'],
+      message: 'no retained PRs matched; delivering instead of gating' });
     const gate = ir.checks.find((check) => check.kind === 'github_merge')!;
     const lanes = ir.repositories
       .filter((repository) => !ir.deliverables.some((entry) => entry.repository?.toLowerCase() === repository.id.toLowerCase()))
@@ -166,9 +170,12 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
     attach('prs_in_scope', ['github_merge'], gate.provenance);
     attach('all_prs_merged', ['github_merge'], gate.provenance);
   } else if (template === 'owner_checklist') {
+    // Steps are parallel unless the prompt orders them ("first …, then …").
+    const steps = ir.checks.filter((check) => check.kind === 'owner_attestation');
+    const sequential = steps.some((check) => check.provenance.some((span) => ORDER_WORDS.test(span.text)));
     let previous: string | null = null;
     const used = new Set<string>();
-    ir.checks.filter((check) => check.kind === 'owner_attestation').forEach((check, index) => {
+    steps.forEach((check, index) => {
       const text = check.provenance[0]?.text ?? `Owner confirmation ${index + 1}`;
       let key = `step_${index + 1}`;
       while (used.has(key)) key = `${key}_x`;
@@ -180,7 +187,7 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
         predicate: { op: 'manual_confirmation' }, evaluator: 'ctx.manual-attestation', evaluator_version: '1',
       });
       attach(key, [`owner_attestation:${index}`], check.provenance);
-      if (previous) edges.push({ from: key, to: previous, kind: 'depends_on' });
+      if (previous && sequential) edges.push({ from: key, to: previous, kind: 'depends_on' });
       previous = key;
     });
     if (nodes.length === 0) {
@@ -195,7 +202,8 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
   } else {
     // single_repo_delivery, multi_repo_join, report_only, research_plan_handoff
     const lanes = ir.deliverables.filter((entry) => LANE_KINDS.has(entry.kind) || entry.kind === 'document' || entry.kind === 'message');
-    const gate = receiptGate(ir, lanes.filter((entry) => !ir.ordering.some((rule) => rule.before === entry.key && rule.after.length >= 2)));
+    const gate = receiptGate(ir, lanes.filter((entry) => !ir.ordering.some((rule) => rule.before === entry.key && rule.after.length >= 2)
+      && !ir.checks.some((check) => check.kind === 'owner_attestation' && check.target === entry.key)));
     for (const deliverable of lanes) {
       // An owner-attested deliverable that lands in no repository ("the runbook
       // … is attested by the owner") is confirmed by the owner, not by a run
@@ -234,7 +242,7 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
     // "users decide" aside) is not lowered: repository lanes stay artifact-verified.
   }
 
-  return { template, nodes, edges, provenance, coverage: coverageDiagnostics(ir, nodes, edges, opts) };
+  return { template, nodes, edges, provenance, coverage: [...notes, ...coverageDiagnostics(ir, nodes, edges, opts)] };
 }
 
 /**

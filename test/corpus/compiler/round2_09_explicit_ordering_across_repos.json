@@ -1,0 +1,37 @@
+{
+  "name": "round2_09_explicit_ordering_across_repos",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "After the schema PR lands in zackproser/ctx, then update ctx-cli to send the new field. Block the CLI work on the server change.",
+  "paraphrases": [
+    "Update ctx-cli to send the new field, but only after the schema change in zackproser/ctx has landed — the CLI PR depends on the server PR."
+  ],
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [
+      "zackproser/ctx",
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx",
+      "lane_ctx_cli"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact",
+      "lane_ctx_cli": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "lane_ctx_cli",
+        "lane_ctx"
+      ]
+    ],
+    "launch_ready": true
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "round2_17_owner_chore_software",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Renew the domain for ctx.zackproser.com, then fix the cert renewal cron in zackproser/ctx and open a PR.",
+  "paraphrases": [
+    "Two things: renew the ctx.zackproser.com domain (me), and a PR in zackproser/ctx fixing the cert renewal cron."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx",
+      "renew_the_domain_for_ctx_zackproser__step"
+    ],
+    "check_kinds": [
+      "owner_attestation"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact",
+      "renew_the_domain_for_ctx_zackproser__step": "ctx.manual-attestation"
+    },
+    "edges": [
+      [
+        "lane_ctx",
+        "renew_the_domain_for_ctx_zackproser__step"
+      ]
+    ],
+    "launch_ready": true
+  }
+}
