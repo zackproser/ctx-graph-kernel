@@ -1,0 +1,34 @@
+{
+  "name": "round2_30_owner_chores_with_ordering_words",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "First renew the passport, then book the flights.",
+  "paraphrases": [
+    "Renew the passport first; after that, book the flights."
+  ],
+  "expected": {
+    "template": "owner_checklist",
+    "repositories": [],
+    "deliverable_keys": [],
+    "check_kinds": [
+      "owner_attestation",
+      "owner_attestation"
+    ],
+    "node_evaluators": {
+      "step_1": "ctx.manual-attestation",
+      "step_2": "ctx.manual-attestation"
+    },
+    "edges": [
+      [
+        "step_2",
+        "step_1"
+      ]
+    ],
+    "launch_ready": true
+  }
+}

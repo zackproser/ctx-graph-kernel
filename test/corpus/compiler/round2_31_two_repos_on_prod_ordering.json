@@ -1,0 +1,39 @@
+{
+  "name": "round2_31_two_repos_on_prod_ordering",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Add the `fallback_detail` column in zackproser/ctx and expose it in ctx-cli `ctx draft --verbose`; make sure the server side is on prod before the CLI release.",
+  "paraphrases": [
+    "zackproser/ctx gets the `fallback_detail` column; ctx-cli shows it under `ctx draft --verbose`. The server change must be on production before the CLI ships."
+  ],
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [
+      "zackproser/ctx",
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx",
+      "lane_ctx_cli"
+    ],
+    "check_kinds": [
+      "deployment_release"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.declarative",
+      "lane_ctx_cli": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "lane_ctx_cli",
+        "lane_ctx"
+      ]
+    ],
+    "launch_ready": true
+  }
+}

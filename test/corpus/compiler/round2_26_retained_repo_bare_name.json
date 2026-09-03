@@ -1,0 +1,29 @@
+{
+  "name": "round2_26_retained_repo_bare_name",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Fix the broken image on the portfolio homepage and open a PR.",
+  "paraphrases": [
+    "The portfolio site homepage has a broken image; fix it and open a PR."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/portfolio"
+    ],
+    "deliverable_keys": [
+      "lane_portfolio"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_portfolio": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "round2_25_typo_d_repo_name",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Add retry to the gateway call in zackproser/ctx-clii and open a PR.",
+  "paraphrases": [
+    "Open a PR in zackproser/ctx-clii adding a retry around the gateway call."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx_cli"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx_cli": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

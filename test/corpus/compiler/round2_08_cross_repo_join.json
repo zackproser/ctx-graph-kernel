@@ -1,0 +1,43 @@
+{
+  "name": "round2_08_cross_repo_join",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Rename `work_run` to `run` in the REST API in zackproser/ctx and update the client in ctx-cli to match; CTX should only close this once both PRs exist and the CLI e2e passes against the new server.",
+  "paraphrases": [
+    "Rename the REST resource `work_run` to `run` on the server (zackproser/ctx) and in the ctx-cli client. Close only after both PRs exist and the CLI end-to-end run passes against the new server."
+  ],
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [
+      "zackproser/ctx",
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx",
+      "lane_ctx_cli",
+      "joined_proof"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact",
+      "lane_ctx_cli": "ctx.work-run-artifact",
+      "joined_proof": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "joined_proof",
+        "lane_ctx"
+      ],
+      [
+        "joined_proof",
+        "lane_ctx_cli"
+      ]
+    ],
+    "launch_ready": true
+  }
+}

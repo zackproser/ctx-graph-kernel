@@ -1,0 +1,27 @@
+{
+  "name": "round2_16_report_only_mentioning_code",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Write up a report on why the compiler's model path times out — read the code in src/service/work-outcome-drafts.ts, but don't change anything. No PR.",
+  "paraphrases": [
+    "I want a written report (no PR, no code changes) explaining why the compiler model path times out; read src/service/work-outcome-drafts.ts to find out."
+  ],
+  "expected": {
+    "template": "report_only",
+    "repositories": [],
+    "deliverable_keys": [
+      "write_up_a_report_on_why_the_compile"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "write_up_a_report_on_why_the_compile": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

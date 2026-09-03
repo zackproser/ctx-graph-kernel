@@ -1,0 +1,29 @@
+{
+  "name": "round2_24_very_long_multi_paragraph",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Context: the Today preview in zackproser/ctx sometimes shows a draft whose provenance highlights the wrong sentence. I traced it to mergeObligations folding model spans into whichever lane happens to be first.\n\nWhat I want: fix the folding so a model span only attaches to a lane whose own spans overlap it, and never emit the {0,0,''} placeholder span. Add corpus fixtures for the two prompts that exposed it. Bump COMPILER_REVISION.\n\nDeliver as a single PR against main. Do not merge; I'll review. Once it's merged (by me), no deployment step is needed from you.",
+  "paraphrases": [
+    "Background: in zackproser/ctx the Today preview occasionally highlights the wrong sentence because mergeObligations folds model spans into the first lane it finds.\n\nPlease make model spans attach only to a lane whose own spans overlap, stop emitting the empty placeholder span, add corpus fixtures for the two triggering prompts, and bump COMPILER_REVISION.\n\nOne PR against main, not merged (I review and merge). You do not deploy."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

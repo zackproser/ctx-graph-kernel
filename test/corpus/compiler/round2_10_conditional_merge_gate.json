@@ -1,0 +1,31 @@
+{
+  "name": "round2_10_conditional_merge_gate",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": true,
+  "matched_pull_requests": 2,
+  "prompt": "Merge PRs #366 and #365 in zackproser/ctx only if CI is green; otherwise leave them open and tell me.",
+  "paraphrases": [
+    "Unless CI fails, land zackproser/ctx#366 and #365."
+  ],
+  "expected": {
+    "template": "merge_gate",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [],
+    "check_kinds": [
+      "github_merge"
+    ],
+    "node_evaluators": {
+      "prs_in_scope": "ctx.input-membership",
+      "all_prs_merged": "ctx.github-merge-verifier"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

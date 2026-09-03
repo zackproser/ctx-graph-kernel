@@ -1,0 +1,29 @@
+{
+  "name": "round2_04_slack_fragments",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "ctx-cli login broken on fresh install. token file perms. fix + PR pls",
+  "paraphrases": [
+    "fresh install of ctx-cli can't log in (token file permissions) — fix it, PR"
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx_cli"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx_cli": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "round2_02_numbered_list_two_repos_no_join",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "1. ctx-cli: add `ctx todo snooze`\n2. zackproser/ctx: accept the snooze field in update_todo\nSeparate PRs, both must be up before we call it done.",
+  "paraphrases": [
+    "Two PRs: one in zackproser/ctx-cli adding `ctx todo snooze`, one in zackproser/ctx so update_todo accepts the snooze field. Done when both are open."
+  ],
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [
+      "zackproser/ctx-cli",
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx_cli",
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx_cli": "ctx.work-run-artifact",
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

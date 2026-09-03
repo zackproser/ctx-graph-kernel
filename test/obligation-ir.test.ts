@@ -89,3 +89,76 @@ describe('obligation IR schema and validation', () => {
     expect(extractObligationIR('Update src/lib/webflow.ts and config/site.json; ship a PR.').repositories).toEqual([]);
   });
 });
+
+describe('round 2 floor rules (battery 2026-09-03)', () => {
+  const known = ['zackproser/ctx', 'zackproser/ctx-cli', 'zackproser/pi-harness'];
+  it('strips list markers and treats every line as a sentence boundary', () => {
+    expect(sentenceSpans('1. book dentist\n2. renew passport\n- call the accountant').map((s) => s.text))
+      .toEqual(['book dentist', 'renew passport', 'call the accountant']);
+    const spans = sentenceSpans('In zackproser/ctx:\n- add a flag\nOpen one PR.');
+    for (const span of spans) expect('In zackproser/ctx:\n- add a flag\nOpen one PR.'.slice(span.start, span.end)).toBe(span.text);
+  });
+  it('snaps a typo of a retained repository to it and never invents the misspelling', () => {
+    const ir = extractObligationIR('Add retry to the gateway call in zackproser/ctx-clii and open a PR.', known);
+    expect(ir.repositories.map((r) => r.id)).toEqual(['zackproser/ctx-cli']);
+    expect(extractObligationIR('Fix zackproser/ctx2 and open a PR.', known).repositories.map((r) => r.id)).toEqual(['zackproser/ctx2']);
+  });
+  it('binds a short bare name only in repository position and never through a domain name', () => {
+    expect(extractObligationIR('Bump the version: a PR in each of ctx, ctx-cli and pi-harness.', known).repositories.map((r) => r.id))
+      .toEqual(['zackproser/ctx', 'zackproser/ctx-cli', 'zackproser/pi-harness']);
+    expect(extractObligationIR('ctx-cli: add `ctx todo snooze` and open a PR.', known).repositories.map((r) => r.id)).toEqual(['zackproser/ctx-cli']);
+    const chore = extractObligationIR('Renew the domain for ctx.zackproser.com, then fix the cert cron in zackproser/ctx and open a PR.', known);
+    expect(chore.deliverables.map((d) => [d.kind, d.repository])).toEqual([['pull_request', 'zackproser/ctx'], ['artifact', null]]);
+    expect(chore.checks).toEqual([expect.objectContaining({ kind: 'owner_attestation', target: chore.deliverables[1]!.key })]);
+  });
+  it('reads deploy intent without the word deploy, and ignores failure context, owner first person and past-tense merges', () => {
+    const live = extractObligationIR("Land the ledger change in zackproser/ctx and make sure it's live on prod before EOD.", known);
+    expect(live.checks.map((c) => c.kind)).toEqual(['deployment_release']);
+    expect(live.repositories[0]!.role).toBe('deployable');
+    const failed = extractObligationIR('The deploy run https://github.com/zackproser/ctx/actions/runs/1 failed on the schema job; fix the cause in zackproser/ctx and open a PR.', known);
+    expect(failed.checks).toEqual([]);
+    expect(failed.repositories.map((r) => r.id)).toEqual(['zackproser/ctx']);
+    const owner = extractObligationIR('zackproser/ctx: fix the migration ordering bug in a PR. No deploy from you; I deploy after I review.', known);
+    expect(owner.checks).toEqual([]);
+    const merged = extractObligationIR('zackproser/ctx#366 already merged; verify the deploy of it actually went out and the /app preview no longer shows placeholder spans. No new code.', known);
+    expect(merged.checks.map((c) => c.kind).sort()).toEqual(['browser_smoke', 'deployment_release']);
+    expect(merged.deliverables.map((d) => d.repository)).toEqual(['zackproser/ctx']);
+  });
+  it('orders lanes from explicit phrases and resolves the unnamed side of a two-lane prompt', () => {
+    for (const prompt of [
+      'After the schema PR lands in zackproser/ctx, then update ctx-cli to send the new field. Block the CLI work on the server change.',
+      'Update ctx-cli to send the new field, but only after the schema change in zackproser/ctx has landed — the CLI PR depends on the server PR.',
+      'Add the column in zackproser/ctx and expose it in ctx-cli; make sure the server side is on prod before the CLI release.',
+    ]) {
+      const ir = extractObligationIR(prompt, known);
+      expect(ir.ordering, prompt).toEqual([{ before: 'lane_ctx_cli', after: ['lane_ctx'] }]);
+    }
+    const doc = extractObligationIR('Research how other MCP servers do tool pagination, write a short comparison doc, then implement cursor pagination for list_todos in zackproser/ctx.', known);
+    expect(doc.deliverables.map((d) => d.kind)).toEqual(['pull_request', 'document']);
+    expect(doc.ordering).toEqual([{ before: 'lane_ctx', after: [doc.deliverables[1]!.key] }]);
+  });
+  it('makes a join gate, not an artifact lane, when no proof is named', () => {
+    const gate = extractObligationIR('Two PRs: one in zackproser/ctx-cli adding snooze, one in zackproser/ctx accepting it. Done when both are open.', known);
+    expect(gate.join_requested).toBe(true);
+    expect(gate.deliverables.map((d) => d.key)).toEqual(['lane_ctx_cli', 'lane_ctx']);
+    const proof = extractObligationIR('Rename it in zackproser/ctx and in ctx-cli; close only once both PRs exist and the CLI e2e passes.', known);
+    expect(proof.deliverables.map((d) => d.key)).toContain('joined_proof');
+  });
+  it('folds model spans only where they overlap the lane, dedupes, and lets the first proposal own the summary', () => {
+    const floor = extractObligationIR('1. ctx-cli: add snooze\n2. zackproser/ctx: accept the snooze field\nSeparate PRs.', known);
+    const marker = { start: 0, end: 2, text: '1.' };
+    const cliSpan = floor.deliverables[0]!.provenance[0]!;
+    const model: typeof floor = {
+      ...floor, source: 'model',
+      deliverables: [
+        { key: 'lane_ctx', kind: 'pull_request', repository: 'zackproser/ctx', summary: 'First summary for the ctx lane.', provenance: [marker, cliSpan] },
+        { key: 'issue', kind: 'artifact', repository: 'zackproser/ctx', summary: 'Second summary must not win here.', provenance: [floor.deliverables[1]!.provenance[0]!] },
+      ],
+    };
+    const merged = mergeObligations(floor, model);
+    const ctxLane = merged.deliverables.find((d) => d.key === 'lane_ctx')!;
+    expect(ctxLane.summary).toBe('First summary for the ctx lane.');
+    expect(ctxLane.provenance).toEqual(floor.deliverables[1]!.provenance);
+    expect(merged.deliverables[0]!.provenance).toEqual(floor.deliverables[0]!.provenance);
+  });
+});

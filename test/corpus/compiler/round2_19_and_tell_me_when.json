@@ -1,0 +1,29 @@
+{
+  "name": "round2_19_and_tell_me_when",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Fix the timeout in zackproser/ctx-cli's `ctx sync`, open a PR, and tell me when it's up.",
+  "paraphrases": [
+    "Open a PR fixing the `ctx sync` timeout in zackproser/ctx-cli and let me know once it's up."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx_cli"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx_cli": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

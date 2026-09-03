@@ -1,0 +1,29 @@
+{
+  "name": "round2_18_open_an_issue_if",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Investigate the flaky schema test in zackproser/ctx; fix it in a PR, and open an issue if the root cause is in pgvector.",
+  "paraphrases": [
+    "Fix the flaky schema test in zackproser/ctx (PR). If it turns out to be pgvector's fault, file an issue too."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

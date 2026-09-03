@@ -1,0 +1,29 @@
+{
+  "name": "round2_12_run_url_not_a_pr",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "The deploy run https://github.com/zackproser/ctx/actions/runs/33776160934 failed on the schema job; fix the cause in zackproser/ctx and open a PR.",
+  "paraphrases": [
+    "https://github.com/zackproser/ctx/actions/runs/33776160934 (the deploy workflow) failed in the schema job. Find the cause and fix it in a zackproser/ctx PR."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

@@ -1,8 +1,16 @@
 {
-  "name": "battery_owner_chores",
+  "name": "round2_29_numbered_owner_chores_no_ordering_words",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
   "has_github_resources": false,
-  "known_repositories": [],
-  "prompt": "Renew the passport, book the dentist appointment, and email the accountant the Q3 receipts.",
+  "prompt": "1. book dentist\n2. renew passport\n3. call the accountant about Q3",
+  "paraphrases": [
+    "book the dentist, renew my passport, call the accountant about Q3"
+  ],
   "expected": {
     "template": "owner_checklist",
     "repositories": [],
@@ -19,8 +27,5 @@
     },
     "edges": [],
     "launch_ready": true
-  },
-  "paraphrases": [
-    "Email the Q3 receipts to the accountant, renew my passport, and schedule the dentist."
-  ]
+  }
 }

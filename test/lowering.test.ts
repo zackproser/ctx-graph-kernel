@@ -23,7 +23,7 @@ const lower = (fixture: Fixture, prompt = fixture.prompt) => {
   return { ir, graph: lowerObligations(ir, { hasGithubResources: fixture.has_github_resources, matchedPullRequests: fixture.matched_pull_requests }) };
 };
 const lint = (graph: LoweredGraph) => lintCompletionGraphShape({ nodes: graph.nodes, edges: graph.edges, initial_memberships: [] });
-const launchReady = (graph: LoweredGraph) => lint(graph).valid && graph.coverage.length === 0;
+const launchReady = (graph: LoweredGraph) => lint(graph).valid && graph.coverage.every((entry) => entry.severity !== 'error');
 
 describe('compiler corpus (deterministic floor → templated lowering)', () => {
   it('has fixtures', () => { expect(corpus.length).toBeGreaterThanOrEqual(8); });
@@ -190,5 +190,31 @@ describe('property: lowering over generated IRs', () => {
       checked += 1;
     }
     expect(checked).toBeGreaterThan(1500);
+  });
+});
+
+describe('round 2 lowering rules', () => {
+  it('owner steps are parallel unless the prompt orders them', () => {
+    const parallel = lowerObligations(extractObligationIR('1. book dentist\n2. renew passport\n3. call the accountant about Q3'), { hasGithubResources: false });
+    expect(parallel.template).toBe('owner_checklist');
+    expect(parallel.nodes.map((n) => n.key)).toEqual(['step_1', 'step_2', 'step_3']);
+    expect(parallel.edges).toEqual([]);
+    const sequential = lowerObligations(extractObligationIR('Renew the passport first; after that, book the flights.'), { hasGithubResources: false });
+    expect(sequential.nodes.map((n) => n.title)).toEqual(['Renew the passport first', 'after that, book the flights']);
+    expect(sequential.edges).toEqual([{ from: 'step_2', to: 'step_1', kind: 'depends_on' }]);
+  });
+  it('says plainly when a merge gate degrades to delivery', () => {
+    const ir = extractObligationIR('Merge zackproser/ctx PRs #364 and #365 once CI is green.', ['zackproser/ctx']);
+    const graph = lowerObligations(ir, { hasGithubResources: false });
+    expect(graph.template).toBe('single_repo_delivery');
+    expect(graph.coverage).toEqual([expect.objectContaining({ severity: 'warning', code: 'merge_gate_degraded', message: 'no retained PRs matched; delivering instead of gating' })]);
+    expect(lowerObligations(ir, { hasGithubResources: true, matchedPullRequests: 2 }).coverage).toEqual([]);
+  });
+  it('a chore beside a PR lane is owner-attested and never receives the deployment receipt', () => {
+    const ir = extractObligationIR("Renew the domain for ctx.zackproser.com, then fix the cert cron in zackproser/ctx, open a PR and make sure it's live on prod.", ['zackproser/ctx']);
+    const graph = lowerObligations(ir, { hasGithubResources: false });
+    const step = graph.nodes.find((n) => n.key.endsWith('_step'))!;
+    expect(step).toMatchObject({ evaluator: 'ctx.manual-attestation', predicate: { op: 'manual_confirmation' } });
+    expect(graph.nodes.find((n) => n.key === 'lane_ctx')!.evaluator).toBe('ctx.declarative');
   });
 });

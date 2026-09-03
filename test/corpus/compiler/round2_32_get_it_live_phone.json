@@ -1,0 +1,32 @@
+{
+  "name": "round2_32_get_it_live_phone",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Get the new /app onboarding flow live in zackproser/ctx and check it on my phone.",
+  "paraphrases": [
+    "Put the new /app onboarding flow live on zackproser/ctx and verify it on mobile."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [
+      "deployment_release",
+      "browser_smoke"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.declarative"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

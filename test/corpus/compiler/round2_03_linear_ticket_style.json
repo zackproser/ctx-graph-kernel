@@ -1,0 +1,29 @@
+{
+  "name": "round2_03_linear_ticket_style",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "CTX-412 Draft preview flickers on refresh\n\nThe Today card re-renders the draft preview twice when the ledger replays. Repo: zackproser/ctx. Fix the double fetch in ui/app/src/work/DraftPreview.tsx and ship a PR.",
+  "paraphrases": [
+    "CTX-412: fix the double fetch that makes the Today draft preview flicker on refresh (ui/app/src/work/DraftPreview.tsx, zackproser/ctx). PR please."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

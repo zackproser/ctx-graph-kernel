@@ -1,0 +1,29 @@
+{
+  "name": "round2_20_negated_deploy",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Fix the migration ordering bug in zackproser/ctx. Do NOT deploy — I'll deploy myself after review.",
+  "paraphrases": [
+    "zackproser/ctx: fix the migration ordering bug in a PR. No deploy from you; I deploy after I review."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

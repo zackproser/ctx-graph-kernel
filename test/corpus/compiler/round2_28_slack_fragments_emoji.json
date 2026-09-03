@@ -1,0 +1,29 @@
+{
+  "name": "round2_28_slack_fragments_emoji",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "pi-harness boot loop again 😩 same as last week. root cause this time please, PR + a regression test",
+  "paraphrases": [
+    "pi-harness is boot-looping again like last week — find the actual root cause, PR with a regression test"
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/pi-harness"
+    ],
+    "deliverable_keys": [
+      "lane_pi_harness"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_pi_harness": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

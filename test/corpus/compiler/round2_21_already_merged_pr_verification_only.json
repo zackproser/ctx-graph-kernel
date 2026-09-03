@@ -1,0 +1,33 @@
+{
+  "name": "round2_21_already_merged_pr_verification_only",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": true,
+  "matched_pull_requests": 1,
+  "prompt": "zackproser/ctx#366 already merged; verify the deploy of it actually went out and the /app preview no longer shows placeholder spans. No new code.",
+  "paraphrases": [
+    "PR #366 in zackproser/ctx has landed. Confirm production picked it up and the preview UI renders without empty spans; this is verification only, no changes."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [
+      "deployment_release",
+      "browser_smoke"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.declarative"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

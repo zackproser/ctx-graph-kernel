@@ -1,0 +1,36 @@
+{
+  "name": "round2_15_research_code",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Research how other MCP servers do tool pagination, write a short comparison doc, then implement cursor pagination for list_todos in zackproser/ctx.",
+  "paraphrases": [
+    "Look at how other MCP servers paginate tool results and write a brief comparison document; after that, implement cursor pagination for list_todos in zackproser/ctx."
+  ],
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx",
+      "doc_document"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_ctx": "ctx.work-run-artifact",
+      "doc_document": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "lane_ctx",
+        "doc_document"
+      ]
+    ],
+    "launch_ready": true
+  }
+}
