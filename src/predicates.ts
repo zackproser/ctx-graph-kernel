@@ -1,8 +1,8 @@
 // Bounded evidence-predicate language v1: validation and evaluation. Pure.
 import { z } from 'zod';
-import { stable } from './canonical';
-import { KernelError } from './errors';
-import type { CompletionNode, CompletionObservation, PredicateEvaluation } from './types';
+import { stable } from '@ctx/contracts';
+import { KernelError } from './errors.js';
+import type { CompletionNode, CompletionObservation, PredicateEvaluation } from './types.js';
 
 export const PredicateObject = z.record(z.string(), z.unknown()).refine(
   (value) => JSON.stringify(value).length <= 16 * 1024,

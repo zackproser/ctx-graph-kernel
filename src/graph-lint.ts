@@ -1,8 +1,8 @@
 // Structural lint and DAG checks for completion-graph shapes. Pure.
-import { KernelError } from './errors';
+import { KernelError } from './errors.js';
 import type {
   CardinalityMode, CompletionGraphDiagnostic, CompletionGraphLint, CompletionGraphShapeLike, CompletionNodeKind,
-} from './types';
+} from './types.js';
 
 export function dependencyCardinalityMismatch(mode: CardinalityMode, target: number, count: number) {
   if (count === 0) return 'dependencies_satisfied requires at least one dependency edge';

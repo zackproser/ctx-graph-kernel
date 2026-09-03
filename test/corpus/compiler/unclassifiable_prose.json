@@ -1,0 +1,17 @@
+{
+  "name": "unclassifiable_prose",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Make the thing better somehow and let us know.",
+  "expected": {
+    "template": "owner_checklist",
+    "repositories": [],
+    "deliverable_keys": [],
+    "check_kinds": [],
+    "node_evaluators": {
+      "step_1": "ctx.manual-attestation"
+    },
+    "edges": [],
+    "launch_ready": false
+  }
+}

@@ -1,10 +1,10 @@
 // Node completion evaluation over current observations and input sets. Pure.
-import { KernelError } from './errors';
-import { dependencyCardinalityMismatch } from './graph-lint';
-import { cardinalityPass, evaluatePredicate } from './predicates';
+import { KernelError } from './errors.js';
+import { dependencyCardinalityMismatch } from './graph-lint.js';
+import { cardinalityPass, evaluatePredicate } from './predicates.js';
 import type {
   CompletionEdge, CompletionNode, CompletionObservation, EvaluationResult, WorkInputSetEvaluationSnapshot,
-} from './types';
+} from './types.js';
 
 export function evaluateNodes(
   nodes: CompletionNode[], edges: CompletionEdge[], observations: CompletionObservation[],

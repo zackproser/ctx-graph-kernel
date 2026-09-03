@@ -1,0 +1,25 @@
+{
+  "contract": "ctx.work-obligation-ir.v1",
+  "title": "x",
+  "repositories": [
+    {
+      "id": "nope",
+      "role": "unknown",
+      "provenance": []
+    }
+  ],
+  "deliverables": [],
+  "checks": [],
+  "ordering": [
+    {
+      "before": "missing",
+      "after": [
+        "also_missing"
+      ]
+    }
+  ],
+  "join_requested": false,
+  "parallel_requested": false,
+  "questions": [],
+  "source": "model"
+}

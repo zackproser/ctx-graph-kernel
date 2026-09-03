@@ -1,0 +1,12 @@
+@ctx/graph-kernel was extracted from github.com/zackproser/ctx on 2026-09-03 with
+history (`git subtree split -P src/kernel`, tip 192b5518 / kernel-split 938d26cc).
+
+Changes relative to the in-repo copy, all mechanical:
+- canonical.ts, work-contracts.ts and the completion enumerations moved to
+  @ctx/contracts; verifier-evidence.ts moved to @ctx/contracts (schemas) and
+  @ctx/verifier-core (truth functions). Imports were repointed.
+- Relative imports gained `.js` extensions for Node ESM resolution.
+- test/kernel-*.test.ts, test/fixtures/kernel/parallel-join.ts and
+  test/corpus/compiler/*.json moved here verbatim as the conformance suite.
+
+No function body changed. MIT licensed by Zachary Proser.

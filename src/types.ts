@@ -1,20 +1,11 @@
 // Pure completion-graph vocabulary. No I/O, no Worker or Node imports.
 
-export type CardinalityMode = 'exact' | 'at_least' | 'dynamic';
+import type { CardinalityMode, CompletionNodeKind, CompletionPolicy, CompletionStatus } from '@ctx/contracts';
 
-export const COMPLETION_NODE_KINDS = [
-  'input_set', 'action', 'artifact_requirement', 'verification_gate',
-] as const;
-
-export const COMPLETION_STATUSES = [
-  'blocked', 'ready', 'running', 'satisfied', 'failed', 'waived',
-] as const;
-
-export type CompletionNodeKind = typeof COMPLETION_NODE_KINDS[number];
-
-export type CompletionPolicy = 'required' | 'optional' | 'waived';
-
-export type CompletionStatus = typeof COMPLETION_STATUSES[number];
+// Enumerations are owned by @ctx/contracts (the server's vocabulary); the
+// kernel re-exports them so callers keep one import for the graph vocabulary.
+export { COMPLETION_NODE_KINDS, COMPLETION_STATUSES } from '@ctx/contracts';
+export type { CardinalityMode, CompletionNodeKind, CompletionPolicy, CompletionStatus } from '@ctx/contracts';
 
 export interface GraphShapeNode {
   key: string;

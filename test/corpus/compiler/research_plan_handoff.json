@@ -1,0 +1,26 @@
+{
+  "name": "research_plan_handoff",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Turn the research project into a plan document, then implement the plan and deliver the resulting document to CTX.",
+  "expected": {
+    "template": "research_plan_handoff",
+    "repositories": [],
+    "deliverable_keys": [
+      "plan_document",
+      "implementation"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "plan_document": "ctx.work-run-artifact",
+      "implementation": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "implementation",
+        "plan_document"
+      ]
+    ],
+    "launch_ready": true
+  }
+}

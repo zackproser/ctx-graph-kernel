@@ -1,7 +1,7 @@
 // Shape identity for completion graphs. The hash deliberately excludes titles
 // and descriptions: it is the CAS boundary for topology and evaluation
 // semantics, not prose. Byte-compatible with every stored shape_hash.
-import { sha256 } from './canonical';
+import { sha256 } from '@ctx/contracts';
 
 interface ShapeNode {
   key: string; kind: string; policy: string;

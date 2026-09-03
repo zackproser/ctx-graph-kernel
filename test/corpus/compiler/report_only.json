@@ -1,0 +1,19 @@
+{
+  "name": "report_only",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Write a report-only Markdown summary of the retained research and store it in CTX. CTX alone decides completion.",
+  "expected": {
+    "template": "report_only",
+    "repositories": [],
+    "deliverable_keys": [
+      "write_a_report_only_markdown_summary"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "write_a_report_only_markdown_summary": "ctx.work-run-artifact"
+    },
+    "edges": [],
+    "launch_ready": true
+  }
+}

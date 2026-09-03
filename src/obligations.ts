@@ -1,7 +1,7 @@
 // Deterministic explicit-obligation inventory and semantic coverage check for
 // natural-language work requests. Pure; no model, no I/O.
-import type { CompletionGraphLint } from './types';
-import { normalizePrompt, type ObligationIR, type Span } from './obligation-ir';
+import type { CompletionGraphLint } from './types.js';
+import { normalizePrompt, type ObligationIR, type Span } from './obligation-ir.js';
 
 // Explicit obligations extracted from the prompt before any lowering. Every
 // entry must map to a node/edge or the draft is not launch-ready.

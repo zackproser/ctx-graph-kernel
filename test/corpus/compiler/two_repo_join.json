@@ -1,0 +1,42 @@
+{
+  "name": "two_repo_join",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Ship the CTX prompt-to-graph CLI control plane. Complete zackproser/ctx#301 across the CTX server and ctx-cli. Two implementation lanes may run independently, but CTX must join them and authorize an end-to-end production proof only after both deliveries exist and the CTX server release passes independent deployment and authenticated browser verification.",
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [
+      "zackproser/ctx",
+      "zackproser/ctx-cli"
+    ],
+    "deliverable_keys": [
+      "lane_ctx",
+      "lane_ctx_cli",
+      "joined_proof"
+    ],
+    "check_kinds": [
+      "deployment_release",
+      "browser_smoke"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.declarative",
+      "lane_ctx_cli": "ctx.work-run-artifact",
+      "joined_proof": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "joined_proof",
+        "lane_ctx"
+      ],
+      [
+        "joined_proof",
+        "lane_ctx_cli"
+      ]
+    ],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "Complete zackproser/ctx#301 across ctx-cli and the CTX server. The two implementation lanes can proceed independently; CTX joins them and authorizes an end-to-end production proof only once both deliveries exist and the CTX server release passes independent deployment and authenticated browser verification.",
+    "Ship the prompt-to-graph CLI control plane: work in zackproser/ctx-cli and zackproser/ctx as separate lanes, then have CTX join both and run an end-to-end production proof after the CTX server release passes independent deployment and authenticated browser verification."
+  ]
+}

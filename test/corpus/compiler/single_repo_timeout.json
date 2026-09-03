@@ -1,0 +1,28 @@
+{
+  "name": "single_repo_timeout",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Bound the Today desk auto-research start with a request timeout\n\nIn zackproser/ctx, the Today desk's START AUTO-RESEARCH action (ui/app/src/api.ts startAutoResearch) has no AbortSignal or timeout. Add a bounded timeout via AbortController, surface a clear \"timed out, try again\" state, and add pure todo-decisions tests. Deliver a reviewed pull request against the default branch; do not merge or deploy yourself. This work is complete only after the merged CTX release passes independent deployment and authenticated desktop and phone browser verification.",
+  "expected": {
+    "template": "single_repo_delivery",
+    "repositories": [
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_ctx"
+    ],
+    "check_kinds": [
+      "deployment_release",
+      "browser_smoke"
+    ],
+    "node_evaluators": {
+      "lane_ctx": "ctx.declarative"
+    },
+    "edges": [],
+    "launch_ready": true
+  },
+  "paraphrases": [
+    "In zackproser/ctx the START AUTO-RESEARCH button on the Today desk (startAutoResearch in ui/app/src/api.ts) never times out. Give it a bounded AbortController timeout with a visible \"timed out, try again\" state and pure todo-decisions tests. Open a reviewed pull request on the default branch and do not merge or deploy it. It is finished only when the merged CTX release passes independent deployment and authenticated desktop and phone browser verification.",
+    "Deliver a reviewed pull request (no merging, no deploying) in zackproser/ctx that bounds the Today desk auto-research start with an AbortController timeout, shows a clear timed-out-try-again state, and adds pure todo-decisions tests; done means the merged CTX release passes independent deployment and authenticated desktop and phone browser verification."
+  ]
+}

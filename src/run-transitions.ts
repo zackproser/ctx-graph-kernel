@@ -1,5 +1,5 @@
 // Run lifecycle state machine. Pure.
-import { WORK_RUN_STATES, type WorkRunState } from './work-contracts';
+import { WORK_RUN_STATES, type WorkRunState } from '@ctx/contracts';
 
 // The one run-state model. Every `update agent_jobs ... set state` below pins
 // its from-states through runStatesThatMayEnter, so a hand-typed guard cannot

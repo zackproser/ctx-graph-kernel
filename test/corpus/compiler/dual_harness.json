@@ -1,0 +1,32 @@
+{
+  "name": "dual_harness",
+  "has_github_resources": false,
+  "known_repositories": [],
+  "prompt": "Run Codex and Claude in parallel on the importer fix and join both lanes when both deliverables exist.",
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [],
+    "deliverable_keys": [
+      "codex_lane",
+      "claude_lane",
+      "joined_proof"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "codex_lane": "ctx.work-run-artifact",
+      "claude_lane": "ctx.work-run-artifact",
+      "joined_proof": "ctx.work-run-artifact"
+    },
+    "edges": [
+      [
+        "joined_proof",
+        "codex_lane"
+      ],
+      [
+        "joined_proof",
+        "claude_lane"
+      ]
+    ],
+    "launch_ready": true
+  }
+}

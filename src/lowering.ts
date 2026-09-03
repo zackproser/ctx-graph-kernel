@@ -2,8 +2,8 @@
 // place predicates and evaluators are written. Output is byte-stable for a
 // given IR (deterministic keys, insertion order derived from the IR).
 // Contract: ctx.work-shape.v1.
-import type { ObligationIR, Span } from './obligation-ir';
-import type { CompletionGraphDiagnostic, GraphShapeEdge, GraphShapeNode } from './types';
+import type { ObligationIR, Span } from './obligation-ir.js';
+import type { CompletionGraphDiagnostic, GraphShapeEdge, GraphShapeNode } from './types.js';
 
 export const TEMPLATES = [
   'single_repo_delivery', 'multi_repo_join', 'report_only', 'research_plan_handoff', 'merge_gate', 'owner_checklist',
