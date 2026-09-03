@@ -621,8 +621,13 @@ export function extractObligationIR(prompt: string, knownRepositories: string[] 
     && !ordering.some((rule) => rule.before === entry.key)
     && !checks.some((check) => check.kind === 'owner_attestation' && check.target === entry.key)).map((entry) => entry.key);
   if ((flat.join_requested || dualHarness) && laneKeys.length >= 2) {
-    const joinSentences = sentences.filter((entry) => JOIN_PHRASE.test(entry.text));
-    if (dualHarness || joinSentences.some((entry) => PROOF_WORD.test(entry.text))) {
+    // The proof noun must sit in the join sentence itself, after any leading
+    // label, and never on the title line: the TODO title "Parallel proof: … ,
+    // joined by CTX" over a body ending "done when both PRs are open" is a
+    // gate, not an artifact lane (production 2026-09-03).
+    const titleEnd = normalized.indexOf('\n');
+    const joinSentences = sentences.filter((entry) => JOIN_PHRASE.test(entry.text) && !(titleEnd >= 0 && entry.end <= titleEnd));
+    if (dualHarness || joinSentences.some((entry) => PROOF_WORD.test(unlabeled(entry.text)))) {
       const key = unique('joined_proof', used);
       deliverables.push({
         key, kind: 'artifact', repository: null,

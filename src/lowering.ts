@@ -281,6 +281,18 @@ export function coverageDiagnostics(
       severity: 'error', code: 'join_uncovered', path: ['prompt'], message: 'the requested join does not depend on every repository lane',
     });
   }
+  // A join lane bound to no repository has no executor lane producing its
+  // artifact; unless the owner attests it, say so before launch.
+  for (const rule of ir.ordering.filter((entry) => entry.after.length >= 2)) {
+    const join = ir.deliverables.find((entry) => entry.key === rule.before);
+    if (!join || join.kind !== 'artifact' || join.repository !== null) continue;
+    if (ir.checks.some((check) => check.kind === 'owner_attestation' && check.target === join.key)) continue;
+    if (!nodes.some((node) => node.key === join.key && node.kind === 'artifact_requirement')) continue;
+    diagnostics.push({
+      severity: 'warning', code: 'join_without_executor', path: ['nodes', nodes.findIndex((node) => node.key === join.key)],
+      message: `join lane ${join.key} is an artifact requirement bound to no repository: no executor lane produces it and no owner attestation is declared`,
+    });
+  }
   const answered = new Set(opts.answeredQuestions ?? []);
   ir.questions.forEach((question, index) => {
     if (!answered.has(index)) diagnostics.push({

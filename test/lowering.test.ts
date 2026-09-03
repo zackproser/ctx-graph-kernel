@@ -127,7 +127,7 @@ describe('invariant 1 and 2: repositories never lower to attestations; coverage 
     expect(noEdges.edges).toEqual([]);
     const questioned: IR = { ...ir, questions: [{ text: 'Which branch?', provenance: ir.repositories[0]!.provenance }] };
     expect(lowerObligations(questioned, { hasGithubResources: false }).coverage.map((c) => c.code)).toContain('questions_unresolved');
-    expect(lowerObligations(questioned, { hasGithubResources: false, answeredQuestions: [0] }).coverage).toEqual([]);
+    expect(lowerObligations(questioned, { hasGithubResources: false, answeredQuestions: [0] }).coverage.filter((c) => c.severity === 'error')).toEqual([]);
   });
   it('downgrades a merge gate without retained pull requests instead of verifying nothing', () => {
     const fixture = corpus.find((f) => f.name === 'merge_gate')!;
@@ -190,6 +190,28 @@ describe('property: lowering over generated IRs', () => {
       checked += 1;
     }
     expect(checked).toBeGreaterThan(1500);
+  });
+});
+
+describe('join proof noun is scoped to the join sentence', () => {
+  const fixture = () => corpus.find((f) => f.name === 'round3_title_proof_noun_join_gate')!;
+  it('a proof noun on the title line never turns "done when both are open" into an artifact lane', () => {
+    const { ir, graph } = lower(fixture());
+    expect(ir.deliverables.map((d) => d.key)).toEqual(['lane_pi_harness', 'lane_ctx']);
+    const join = graph.nodes.find((n) => n.key === 'all_lanes_accepted')!;
+    expect(join).toMatchObject({ kind: 'verification_gate', evaluator: 'ctx.declarative', predicate: { op: 'dependencies_satisfied' } });
+    expect(graph.coverage).toEqual([]);
+  });
+  it('the body alone lowers to the same gate', () => {
+    const body = fixture().prompt.split('\n\n').slice(1).join('\n\n');
+    const { graph } = lower(fixture(), body);
+    expect(graph.nodes.map((n) => n.key)).toEqual(['lane_pi_harness', 'lane_ctx', 'all_lanes_accepted']);
+  });
+  it('a proof noun inside the join sentence still yields a proof lane, with a preview warning', () => {
+    const { ir, graph } = lower(corpus.find((f) => f.name === 'two_repo_join')!);
+    expect(ir.deliverables.map((d) => d.key)).toContain('joined_proof');
+    expect(graph.coverage).toEqual([expect.objectContaining({ severity: 'warning', code: 'join_without_executor', path: ['nodes', 2] })]);
+    expect(launchReady(graph)).toBe(true);
   });
 });
 

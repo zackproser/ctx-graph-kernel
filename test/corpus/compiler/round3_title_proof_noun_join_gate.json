@@ -1,0 +1,42 @@
+{
+  "name": "round3_title_proof_noun_join_gate",
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness",
+    "zackproser/portfolio"
+  ],
+  "has_github_resources": false,
+  "prompt": "Parallel proof: pi-harness runbook PR + ctx preview-header PR, joined by CTX\n\nTwo pull requests, in parallel. In zackproser/pi-harness, add docs/integrity-runbook.md based on the operator runbook retained in the attached CTX Pi Harness research project (document integrity-runbook): replace its placeholder profile-apply steps with the real bootstrap apply and rollback commands from the repository and docs/profiles.md, and link the runbook from README.md. In zackproser/ctx, fix the Today HANDLE FOR ME preview header so that when every lane is an owner-attested checklist and no executor runs it no longer says \"CTX will run ORB\" but says CTX holds the step for the owner to attest, with a UI unit test. Done when both pull requests are open with green CI; do not merge.",
+  "paraphrases": [
+    "Two PRs in parallel: add docs/integrity-runbook.md to zackproser/pi-harness from the retained operator runbook and link it from README.md, and fix the Today HANDLE FOR ME preview header wording in zackproser/ctx with a UI unit test. Finished when both pull requests are open with green CI. Do not merge."
+  ],
+  "expected": {
+    "template": "multi_repo_join",
+    "repositories": [
+      "zackproser/pi-harness",
+      "zackproser/ctx"
+    ],
+    "deliverable_keys": [
+      "lane_pi_harness",
+      "lane_ctx"
+    ],
+    "check_kinds": [],
+    "node_evaluators": {
+      "lane_pi_harness": "ctx.work-run-artifact",
+      "lane_ctx": "ctx.work-run-artifact",
+      "all_lanes_accepted": "ctx.declarative"
+    },
+    "edges": [
+      [
+        "all_lanes_accepted",
+        "lane_pi_harness"
+      ],
+      [
+        "all_lanes_accepted",
+        "lane_ctx"
+      ]
+    ],
+    "launch_ready": true
+  }
+}
