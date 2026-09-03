@@ -104,7 +104,9 @@ export function extractObligations(prompt: string, knownRepositories: string[] =
   return {
     repositories,
     join_requested: /\b(?:after|once|when)\s+both\b|\bjoin(?:s|ed|ing)?\b|\b(?:end-to-end|production|final|joined)\s+proof\b|\bboth\s+deliveries\b/i.test(prompt),
-    parallel_requested: /\bparallel\b|\bindependent(?:ly)?\b|\bseparate(?:ly)?\b|\b(?:both|two)\s+(?:lanes|repos(?:itories)?|implementation\s+lanes)\b/i.test(prompt),
+    // 'independent deployment/browser verification' describes a verifier, not
+    // parallel work; only bare independent(ly)/separate(ly) count.
+    parallel_requested: /\bparallel\b|\bindependent(?:ly)?\b(?!\s+(?:deployment|release|browser|verification|verifiers?|review))|\bseparate(?:ly)?\b(?!\s+(?:deployment|release|browser|verification|verifiers?|review))|\b(?:both|two)\s+(?:lanes|repos(?:itories)?|implementation\s+lanes)\b/i.test(prompt),
   };
 }
 
