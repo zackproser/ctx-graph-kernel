@@ -22,10 +22,12 @@ const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\
 const wordPattern = (word: string) => new RegExp(`(?<![\\w-])${escapeRegExp(word)}(?![\\w-]|\\.\\w)`, 'i');
 
 // "in ctx", "of ctx", "the ctx server": a bare repository name in a position
-// only a repository occupies. This is what lets a 3-letter name bind.
-const contextualPattern = (name: string) => new RegExp(
+// only a repository occupies. This is what lets a 3-letter name bind — in the
+// repository's own case: "store it in CTX" names the product, not the repo
+// (round-1 report-only prompt regressed on 2026-09-03 before this guard).
+const contextualPattern = (name: string, exactCase = false) => new RegExp(
   `(?:\\b(?:in|within|inside|across|of)\\s+(?:the\\s+)?${escapeRegExp(name)}(?![\\w-]|\\.\\w)|(?<![\\w-])${escapeRegExp(name)}\\s+(?:server|repo(?:sitory)?|codebase|backend|service|package|project|lane))`,
-  'i',
+  exactCase ? '' : 'i',
 );
 
 // "config/packages.lock.json", "docs/runbook.md", "src/lib" are paths, not
@@ -367,7 +369,7 @@ export function extractObligationIR(prompt: string, knownRepositories: string[] 
     repositories: flatAll.repositories.filter((repository) => {
       if (explicit.has(repository.toLowerCase())) return true;
       const name = repositoryName(repository);
-      return name.length >= 4 ? wordPattern(name).test(normalized) : contextualPattern(name).test(normalized);
+      return name.length >= 4 ? wordPattern(name).test(normalized) : contextualPattern(name, true).test(normalized);
     }),
   };
   const sentences = sentenceSpans(normalized);

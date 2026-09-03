@@ -1,7 +1,11 @@
 {
   "name": "report_only",
   "has_github_resources": false,
-  "known_repositories": [],
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness"
+  ],
   "prompt": "Write a report-only Markdown summary of the retained research and store it in CTX. CTX alone decides completion.",
   "expected": {
     "template": "report_only",

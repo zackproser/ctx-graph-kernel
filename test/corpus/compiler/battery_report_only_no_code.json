@@ -1,7 +1,11 @@
 {
   "name": "battery_report_only_no_code",
   "has_github_resources": false,
-  "known_repositories": [],
+  "known_repositories": [
+    "zackproser/ctx",
+    "zackproser/ctx-cli",
+    "zackproser/pi-harness"
+  ],
   "prompt": "Write a report-only Markdown summary comparing the three MCP transport options we researched and store it in CTX. No code changes.",
   "expected": {
     "template": "report_only",
