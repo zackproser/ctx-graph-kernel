@@ -230,7 +230,8 @@ describe('round 2 lowering rules', () => {
     const graph = lowerObligations(ir, { hasGithubResources: false });
     expect(graph.template).toBe('single_repo_delivery');
     expect(graph.coverage).toEqual([expect.objectContaining({ severity: 'warning', code: 'merge_gate_degraded', message: 'no retained PRs matched; delivering instead of gating' })]);
-    expect(lowerObligations(ir, { hasGithubResources: true, matchedPullRequests: 2 }).coverage).toEqual([]);
+    expect(lowerObligations(ir, { hasGithubResources: true, matchedPullRequests: 2 }).coverage)
+      .toEqual([expect.objectContaining({ severity: 'error', code: 'ci_obligation_uncovered' })]);
   });
   it('a chore beside a PR lane is owner-attested and never receives the deployment receipt', () => {
     const ir = extractObligationIR("Renew the domain for ctx.zackproser.com, then fix the cert cron in zackproser/ctx, open a PR and make sure it's live on prod.", ['zackproser/ctx']);

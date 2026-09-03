@@ -10,3 +10,11 @@ migrate their projections, preserve historical evaluation receipts, and record
 the evaluation engine version. CTX migration 053 invalidates affected cached
 completion projections and re-evaluates them with engine 2. Hash serialization,
 graph shape, receipt writer versions, and run transitions are unchanged.
+# GitHub CI obligations
+
+Explicit green-CI delivery requests now require independent GitHub receipts on
+every targeted repository lane. Artifact delivery alone is insufficient.
+Merge-only graphs with a CI prerequisite are rejected with
+`ci_obligation_uncovered` until a connector can enforce that prerequisite;
+they are no longer advertised as launch-ready. Existing persisted graphs keep
+their shape; consumers must invalidate draft caches on this kernel pin.
