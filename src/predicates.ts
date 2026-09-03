@@ -92,7 +92,18 @@ export function evaluatePredicate(
     const kind = typeof raw.observation_kind === 'string' ? raw.observation_kind : null;
     const min = typeof raw.min_count === 'number' ? raw.min_count : 1;
     const matches = Array.isArray(raw.matches) ? raw.matches as Array<Record<string, unknown>> : [];
-    const candidates = observations.filter((observation) => !kind || observation.kind === kind);
+    const allCandidates = observations.filter((observation) => !kind || observation.kind === kind);
+    // Input is in durable ledger order, not the caller's observed_at order.
+    // Decide current truth before filtering for success: filtering first keeps
+    // a historical pass alive after the same check fails or becomes pending.
+    const receiptIdentity = (observation: CompletionObservation) => JSON.stringify([
+      observation.evidence_item_id, observation.source,
+      observation.payload.verifier_id ?? observation.payload.verifier ?? '',
+      observation.payload.verifier_version ?? '',
+    ]);
+    const candidates = kind === 'verification_receipt'
+      ? [...new Map(allCandidates.map((observation) => [receiptIdentity(observation), observation])).values()]
+      : allCandidates;
     // A failed trusted check remains durable input and therefore makes a gate
     // failed rather than ready, but it can never satisfy even a loosely written
     // verification_receipt count predicate.
@@ -112,7 +123,8 @@ export function evaluatePredicate(
     // legitimately have many receipts. Cardinality describes distinct work
     // inputs, not the number of times a connector was polled.
     const distinct = new Map(accepted.map((observation) => [
-      observation.evidence_item_id ? `evidence:${observation.evidence_item_id}` : `observation:${observation.id}`,
+      observation.evidence_item_id ? `evidence:${observation.evidence_item_id}`
+        : kind === 'verification_receipt' ? receiptIdentity(observation) : `observation:${observation.id}`,
       observation,
     ]));
     const counted = [...distinct.values()];
