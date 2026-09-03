@@ -107,6 +107,9 @@ describe('round 2 floor rules (battery 2026-09-03)', () => {
     expect(extractObligationIR('Bump the version: a PR in each of ctx, ctx-cli and pi-harness.', known).repositories.map((r) => r.id))
       .toEqual(['zackproser/ctx', 'zackproser/ctx-cli', 'zackproser/pi-harness']);
     expect(extractObligationIR('ctx-cli: add `ctx todo snooze` and open a PR.', known).repositories.map((r) => r.id)).toEqual(['zackproser/ctx-cli']);
+    // The product is written CTX; the repository is ctx. "store it in CTX" binds nothing.
+    expect(extractObligationIR('Write a report-only Markdown summary and store it in CTX. No code changes.', known).repositories).toEqual([]);
+    expect(extractObligationIR('Deliver the report and save it in ctx as a PR.', known).repositories.map((r) => r.id)).toEqual(['zackproser/ctx']);
     const chore = extractObligationIR('Renew the domain for ctx.zackproser.com, then fix the cert cron in zackproser/ctx and open a PR.', known);
     expect(chore.deliverables.map((d) => [d.kind, d.repository])).toEqual([['pull_request', 'zackproser/ctx'], ['artifact', null]]);
     expect(chore.checks).toEqual([expect.objectContaining({ kind: 'owner_attestation', target: chore.deliverables[1]!.key })]);
