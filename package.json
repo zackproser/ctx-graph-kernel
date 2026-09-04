@@ -1,6 +1,6 @@
 {
   "name": "@ctx/graph-kernel",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "CTX completion-graph kernel: pure lint, predicate validation, node evaluation, shape hashing, run-state transitions, obligation IR extraction and lowering",
   "license": "MIT",
   "type": "module",

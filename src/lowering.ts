@@ -93,18 +93,42 @@ function laneNode(
   };
 }
 
-// Deployment/browser receipts gate exactly one lane: the deployable
-// repository's lane (else the first repository's), never a downstream proof.
-function receiptGate(ir: ObligationIR, lanes: ObligationIR['deliverables']): { key: string | null; receipts: string[] } {
-  const receipts = ir.checks
-    .filter((check) => check.kind === 'deployment_release' || check.kind === 'browser_smoke')
-    .map((check) => RECEIPT_ID[check.kind as 'deployment_release' | 'browser_smoke']);
-  if (!receipts.length || !lanes.length) return { key: null, receipts: [] };
-  const deployable = ir.repositories.find((entry) => entry.role === 'deployable')?.id ?? ir.repositories[0]?.id ?? null;
-  const target = lanes.find((lane) => deployable && lane.repository?.toLowerCase() === deployable.toLowerCase())
-    ?? lanes.find((lane) => /\b(?:deploy|deployed|deployment|production|release)\b/i.test(lane.summary))
-    ?? lanes[lanes.length - 1]!;
-  return { key: target.key, receipts: [...new Set(receipts)] };
+function receiptLanes(ir: ObligationIR): ObligationIR['deliverables'] {
+  return ir.deliverables.filter(entry => (LANE_KINDS.has(entry.kind) || entry.kind === 'document' || entry.kind === 'message')
+    && !ir.ordering.some(rule => rule.before === entry.key && rule.after.length >= 2)
+    && !(entry.repository === null && ir.checks.some(check => check.kind === 'owner_attestation' && check.target === entry.key)));
+}
+
+// The check's explicit target owns custody. Model role labels, wording and
+// repository order cannot redirect a requirement to a different executor.
+function receiptTarget(check: ObligationIR['checks'][number], lanes: ObligationIR['deliverables']): string | null {
+  const matches = check.target === null ? lanes : lanes.filter(lane =>
+    lane.key === check.target || lane.repository?.toLowerCase() === check.target!.toLowerCase());
+  return matches.length === 1 ? matches[0]!.key : null;
+}
+
+function receiptGates(ir: ObligationIR): Map<string, string[]> {
+  const gates = new Map<string, string[]>();
+  const lanes = receiptLanes(ir);
+  for (const check of ir.checks) {
+    if (check.kind !== 'deployment_release' && check.kind !== 'browser_smoke') continue;
+    const key = receiptTarget(check, lanes);
+    if (key === null) continue; // Coverage reports unresolved or ambiguous custody.
+    gates.set(key, [...new Set([...(gates.get(key) ?? []), RECEIPT_ID[check.kind]])]);
+  }
+  return gates;
+}
+
+function requiresReceipt(predicate: Record<string, unknown>, verifier: string): boolean {
+  if (predicate.op === 'all' && Array.isArray(predicate.conditions)) {
+    return predicate.conditions.some(condition => condition && typeof condition === 'object'
+      && requiresReceipt(condition as Record<string, unknown>, verifier));
+  }
+  if (predicate.op !== 'observation_count' || predicate.observation_kind !== 'verification_receipt'
+    || typeof predicate.min_count !== 'number' || predicate.min_count < 1 || !Array.isArray(predicate.matches)) return false;
+  const matches = predicate.matches.filter(match => match && typeof match === 'object') as Array<Record<string, unknown>>;
+  return matches.some(match => match.path === 'verifier_id' && match.operator === 'eq' && match.value === verifier)
+    && matches.some(match => match.path === 'passed' && match.operator === 'eq' && match.value === true);
 }
 
 export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): LoweredGraph {
@@ -203,8 +227,7 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
   } else {
     // single_repo_delivery, multi_repo_join, report_only, research_plan_handoff
     const lanes = ir.deliverables.filter((entry) => LANE_KINDS.has(entry.kind) || entry.kind === 'document' || entry.kind === 'message');
-    const gate = receiptGate(ir, lanes.filter((entry) => !ir.ordering.some((rule) => rule.before === entry.key && rule.after.length >= 2)
-      && !ir.checks.some((check) => check.kind === 'owner_attestation' && check.target === entry.key)));
+    const gates = receiptGates(ir);
     for (const deliverable of lanes) {
       // An owner-attested deliverable that lands in no repository ("the runbook
       // … is attested by the owner") is confirmed by the owner, not by a run
@@ -223,7 +246,7 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
       }
       const ci = ir.checks.some((check) => check.kind === 'github_checks'
         && (check.target === deliverable.repository || check.target === deliverable.key));
-      const receipts = [...(deliverable.key === gate.key ? gate.receipts : []), ...(ci ? [RECEIPT_ID.github_checks] : [])];
+      const receipts = [...(gates.get(deliverable.key) ?? []), ...(ci ? [RECEIPT_ID.github_checks] : [])];
       nodes.push(laneNode(deliverable, receipts));
       attach(deliverable.key, [deliverable.key, ...receipts], deliverable.provenance);
     }
@@ -257,6 +280,16 @@ export function coverageDiagnostics(
   ir: ObligationIR, nodes: GraphShapeNode[], edges: GraphShapeEdge[], opts: Pick<LoweringOptions, 'answeredQuestions'> = {},
 ): CompletionGraphDiagnostic[] {
   const diagnostics: CompletionGraphDiagnostic[] = [];
+  const eligible = receiptLanes(ir);
+  for (const check of ir.checks) {
+    if (check.kind !== 'deployment_release' && check.kind !== 'browser_smoke') continue;
+    const key = receiptTarget(check, eligible);
+    const node = nodes.find(candidate => candidate.key === key);
+    if (!node || !requiresReceipt(node.predicate, RECEIPT_ID[check.kind])) diagnostics.push({
+      severity: 'error', code: 'receipt_obligation_uncovered', path: ['prompt'],
+      message: `${check.kind} requires one eligible delivery lane for ${check.target ?? 'its unspecified target'} and an independent passing receipt on that lane.`,
+    });
+  }
   for (const check of ir.checks.filter((entry) => entry.kind === 'github_checks')) {
     const covered = check.target && nodes.some((node) =>
       (node.key === check.target || node.description.startsWith(`Repository: ${check.target}\n`))
