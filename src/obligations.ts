@@ -697,8 +697,8 @@ export function mergeObligations(deterministic: ObligationIR, model: ObligationI
   const repositories = deterministic.repositories.map((entry) => {
     const proposed = model.repositories.find((candidate) => candidate.id.toLowerCase() === entry.id.toLowerCase());
     if (!proposed) return entry;
-    // A role only matters when a receipt has to pick its lane; without one the
-    // model's "deployable" for a CI-only repository is noise.
+    // Retain role metadata for receipt-bearing requests, but lowering binds
+    // checks by their target; a model role never decides verifier custody.
     const role = entry.role === 'unknown' && receipts ? proposed.role : entry.role;
     const provenance = [...entry.provenance];
     append(provenance, proposed.provenance);

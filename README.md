@@ -122,6 +122,8 @@ graph.nodes; graph.edges; graph.template;   // e.g. 'multi_repo_join'
 
 Extraction is deterministic and every finding carries the span of prompt text that justified it, so the compiler can show its work. Lowering picks one of the fixed `TEMPLATES` (`single_repo_delivery`, `multi_repo_join`, `report_only`, `research_plan_handoff`, `merge_gate`, `owner_checklist`) and emits a shape that passes `lintCompletionGraphShape`. The corpus in `test/corpus/compiler/` pins prompt → template → shape for every template.
 
+Deployment and browser checks bind to their explicit repository or deliverable key. Repository roles supplied by a model cannot move those requirements to another lane. Each check must resolve to one eligible executor lane; an unspecified target is accepted only when there is one such lane. Missing or ambiguous targets produce a `receipt_obligation_uncovered` error, and coverage verifies that the named lane actually requires an independent passing receipt. Downstream joins and owner-attested deliverables cannot absorb another lane's checks.
+
 ### Types
 
 `CompletionNode`, `CompletionEdge`, `CompletionObservation`, `GraphShapeNode`, `GraphShapeEdge`, `CompletionGraphShapeLike`, `CompletionGraphLint`, `CompletionGraphDiagnostic`, `PredicateEvaluation`, `EvaluationResult`, `WorkInputSetEvaluationSnapshot`, `ObligationIR`, `Span`, `LoweredGraph`, `TemplateId`, `KernelError`. Enumerations (`COMPLETION_NODE_KINDS`, `COMPLETION_STATUSES`, …) are re-exported from `@ctx/contracts`.
@@ -131,6 +133,7 @@ Extraction is deterministic and every finding carries the span of prompt text th
 | `@ctx/graph-kernel` | `@ctx/contracts` | `ctx` | Notes |
 |---|---|---|---|
 | 0.1.x | 0.1.x (exact pin) | pins exact commit | first extraction; no function body changed from `ctx/src/kernel` |
+| 1.1.x | 0.3.x (exact pin) | pins exact commit | explicit deployment/browser receipt targets and coverage diagnostics; existing graph evaluation and hashes unchanged |
 
 * Anything that changes a `shapeHash` result or an `evaluateNodes` verdict for an existing input is a **major** bump and needs a data migration in `ctx`; the golden fixture will fail first.
 * New predicate types, templates, or diagnostics are minor bumps.
