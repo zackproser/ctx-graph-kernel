@@ -39,6 +39,7 @@ const bounded = (value: string, max: number) => {
 const RECEIPT_ID = {
   deployment_release: 'ctx.deployment-release-verifier',
   browser_smoke: 'ctx.browser-smoke-verifier',
+  github_checks: 'ctx.github-ci-verifier',
 } as const;
 
 export function selectTemplate(ir: ObligationIR): TemplateId {
@@ -79,7 +80,7 @@ function laneNode(
 ): GraphShapeNode {
   const body = deliverable.summary || 'A retained run artifact or connected harness receipt must be reported.';
   const receiptDetail = receipts.length
-    ? ` CTX also requires independent ${receipts.map((id) => id === RECEIPT_ID.browser_smoke ? 'browser smoke' : 'deployment release').join(' and ')} receipts.`
+    ? ` CTX also requires independent ${receipts.map((id) => id === RECEIPT_ID.github_checks ? 'GitHub PR and CI' : id === RECEIPT_ID.browser_smoke ? 'browser smoke' : 'deployment release').join(' and ')} receipts.`
     : '';
   return {
     key: deliverable.key,
@@ -220,8 +221,11 @@ export function lowerObligations(ir: ObligationIR, opts: LoweringOptions): Lower
         attach(deliverable.key, [deliverable.key, 'owner_attestation'], [...deliverable.provenance, ...attested.provenance]);
         continue;
       }
-      nodes.push(laneNode(deliverable, deliverable.key === gate.key ? gate.receipts : []));
-      attach(deliverable.key, [deliverable.key, ...(deliverable.key === gate.key ? gate.receipts : [])], deliverable.provenance);
+      const ci = ir.checks.some((check) => check.kind === 'github_checks'
+        && (check.target === deliverable.repository || check.target === deliverable.key));
+      const receipts = [...(deliverable.key === gate.key ? gate.receipts : []), ...(ci ? [RECEIPT_ID.github_checks] : [])];
+      nodes.push(laneNode(deliverable, receipts));
+      attach(deliverable.key, [deliverable.key, ...receipts], deliverable.provenance);
     }
     dependencyEdges();
     if (template === 'multi_repo_join' && ir.join_requested) {
@@ -253,6 +257,13 @@ export function coverageDiagnostics(
   ir: ObligationIR, nodes: GraphShapeNode[], edges: GraphShapeEdge[], opts: Pick<LoweringOptions, 'answeredQuestions'> = {},
 ): CompletionGraphDiagnostic[] {
   const diagnostics: CompletionGraphDiagnostic[] = [];
+  for (const check of ir.checks.filter((entry) => entry.kind === 'github_checks')) {
+    const covered = check.target && nodes.some((node) =>
+      (node.key === check.target || node.description.startsWith(`Repository: ${check.target}\n`))
+      && JSON.stringify(node.predicate).includes(RECEIPT_ID.github_checks));
+    if (!covered) diagnostics.push({ severity: 'error', code: 'ci_obligation_uncovered', path: ['prompt'],
+      message: 'Green CI requires a repository-bound delivery lane with independent GitHub checks.' });
+  }
   const laneKeys = new Map<string, string[]>();
   for (const node of nodes) {
     if (node.kind === 'input_set') continue;

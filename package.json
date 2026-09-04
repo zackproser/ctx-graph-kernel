@@ -1,19 +1,32 @@
 {
   "name": "@ctx/graph-kernel",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "CTX completion-graph kernel: pure lint, predicate validation, node evaluation, shape hashing, run-state transitions, obligation IR extraction and lowering",
   "license": "MIT",
   "type": "module",
-  "repository": { "type": "git", "url": "git+https://github.com/zackproser/ctx-graph-kernel.git" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zackproser/ctx-graph-kernel.git"
+  },
   "homepage": "https://github.com/zackproser/ctx-graph-kernel#readme",
   "sideEffects": false,
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE", "NOTICE"],
-  "engines": { "node": ">=20" },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
@@ -21,9 +34,11 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ctx/contracts": "git+https://github.com/zackproser/ctx-contracts.git#e189cf7ca4b456620c06afea0c50886c1d1531d2"
+    "@ctx/contracts": "git+https://github.com/zackproser/ctx-contracts.git#150ec3124c6945d3496313d86f9531f8844bf56b"
   },
-  "peerDependencies": { "zod": "^3.25.0" },
+  "peerDependencies": {
+    "zod": "^3.25.0"
+  },
   "devDependencies": {
     "@types/node": "26.1.1",
     "typescript": "5.9.3",

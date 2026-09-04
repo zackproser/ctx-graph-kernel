@@ -21,10 +21,13 @@
       "lane_pi_harness",
       "lane_ctx"
     ],
-    "check_kinds": [],
+    "check_kinds": [
+      "github_checks",
+      "github_checks"
+    ],
     "node_evaluators": {
-      "lane_pi_harness": "ctx.work-run-artifact",
-      "lane_ctx": "ctx.work-run-artifact",
+      "lane_pi_harness": "ctx.declarative",
+      "lane_ctx": "ctx.declarative",
       "all_lanes_accepted": "ctx.declarative"
     },
     "edges": [

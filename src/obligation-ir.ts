@@ -14,7 +14,7 @@ const Key = z.string().regex(/^[a-z][a-z0-9_]{0,40}$/);
 const RepositoryId = z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/);
 
 export const DELIVERABLE_KINDS = ['pull_request', 'commit', 'document', 'artifact', 'deployment', 'message'] as const;
-export const CHECK_KINDS = ['deployment_release', 'browser_smoke', 'github_merge', 'owner_attestation', 'connector'] as const;
+export const CHECK_KINDS = ['deployment_release', 'browser_smoke', 'github_merge', 'github_checks', 'owner_attestation', 'connector'] as const;
 export type DeliverableKind = typeof DELIVERABLE_KINDS[number];
 export type CheckKind = typeof CHECK_KINDS[number];
 

@@ -409,6 +409,16 @@ export function extractObligationIR(prompt: string, knownRepositories: string[] 
   const deployableTarget = repositories.find((entry) => entry.role === 'deployable')?.id ?? repositories[0]?.id ?? null;
   if (deploymentSentences.length) checks.push({ kind: 'deployment_release', target: deployableTarget, provenance: deploymentSentences.map(spanOf) });
   if (browserSentences.length) checks.push({ kind: 'browser_smoke', target: deployableTarget, provenance: browserSentences.map(spanOf) });
+  const ciSentences = sentences.filter((sentence) => /\b(?:green\s+(?:ci|checks)|(?:ci|checks)\s+(?:are\s+|is\s+|must\s+be\s+)?(?:green|pass(?:ing|es|ed)?)|passing\s+ci)\b/i
+    .test(positiveIntentText(sentence.text)) || /\bunless\s+ci\s+fails\b/i.test(sentence.text));
+  for (const sentence of ciSentences) {
+    const targets = mentions(sentence.text);
+    for (const target of targets.length ? targets : repositoryIds.length ? repositoryIds : [null]) {
+      if (!checks.some((check) => check.kind === 'github_checks' && check.target === target)) {
+        checks.push({ kind: 'github_checks', target, provenance: [spanOf(sentence)] });
+      }
+    }
+  }
 
   // "#366 already merged" / "PR #366 has landed" state a fact; only an
   // imperative merge is a gate (round 2, 2026-09-03).
