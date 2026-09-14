@@ -1,11 +1,13 @@
 import type { CompletionGraphShapeLike } from './types.js';
 
 /** Durable external waits use the ordinary graph; they never hold executor jobs. */
-export function externalWorkGraph(caseId: string): CompletionGraphShapeLike {
+export function externalWorkGraph(caseId: string, options: { requiresPacket?: boolean } = {}): CompletionGraphShapeLike {
   const gates = [
     ['intake', 'Source mail retained', 'ctx.mail-intake-verifier'],
-    ['packet', 'Answers grounded and authorized', 'ctx.packet-verifier'],
-    ['submitted', 'Provider confirmed submission', 'ctx.web-form-verifier'],
+    ...(options.requiresPacket === false ? [] : [
+      ['packet', 'Answers grounded and authorized', 'ctx.packet-verifier'],
+      ['submitted', 'Provider confirmed submission', 'ctx.web-form-verifier'],
+    ]),
     ['booking', 'Organizer confirmed a future call', 'ctx.calendar-booking-verifier'],
     ['owner_update', 'Booking clearly recorded in CTX', 'ctx.owner-update-verifier'],
   ];
