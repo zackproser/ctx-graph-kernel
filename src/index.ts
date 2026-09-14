@@ -8,3 +8,4 @@ export * from './run-transitions.js';
 export * from './obligation-ir.js';
 export * from './obligations.js';
 export * from './lowering.js';
+export * from './external-work.js';
